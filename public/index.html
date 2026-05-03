@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Recurso Musical</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0e0f13;
+      --surface:  #16171d;
+      --surface2: #1c1d25;
+      --border:   rgba(255,255,255,0.07);
+      --acc:      #7c6af7;
+      --acc2:     #a78bfa;
+      --teal:     #2dd4bf;
+      --green:    #4ade80;
+      --red:      #f87171;
+      --blue:     #60a5fa;
+      --t0:       #f1f0fa;
+      --t1:       #c4c1d8;
+      --t2:       #8a87a0;
+      --t3:       #5a5870;
+    }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: var(--bg);
+      color: var(--t0);
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: linear-gradient(135deg, #1a1040 0%, #0e0f13 60%);
+      border-bottom: 1px solid var(--border);
+      padding: 0 40px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(12px);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-mark {
+      width: 36px; height: 36px;
+      background: var(--acc);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 900; font-size: 14px; color: #fff;
+      letter-spacing: -0.5px;
+    }
+
+    .logo-name {
+      font-weight: 800;
+      font-size: 18px;
+      color: var(--t0);
+      letter-spacing: -0.3px;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .btn {
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      transition: all .15s;
+      letter-spacing: 0.3px;
+    }
+
+    .btn-ghost {
+      background: rgba(255,255,255,0.06);
+      color: var(--t1);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover { background: rgba(255,255,255,0.1); color: var(--t0); }
+
+    .btn-acc { background: var(--acc); color: #fff; }
+    .btn-acc:hover { background: var(--acc2); }
+
+    /* ── HERO ── */
+    .hero {
+      background: linear-gradient(160deg, #1a1040 0%, #0e1520 50%, #0e0f13 100%);
+      padding: 80px 40px 60px;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .hero-badge {
+      display: inline-block;
+      background: rgba(124,106,247,0.15);
+      border: 1px solid rgba(124,106,247,0.3);
+      color: var(--acc2);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-bottom: 20px;
+    }
+
+    .hero h1 {
+      font-size: clamp(32px, 5vw, 56px);
+      font-weight: 900;
+      color: var(--t0);
+      letter-spacing: -1.5px;
+      line-height: 1.1;
+      margin-bottom: 16px;
+    }
+
+    .hero h1 span { color: var(--acc); }
+
+    .hero p {
+      font-size: 16px;
+      font-weight: 400;
+      color: var(--t2);
+      max-width: 480px;
+      margin: 0 auto 32px;
+      line-height: 1.6;
+    }
+
+    /* ── MAIN ── */
+    main { max-width: 1200px; margin: 0 auto; padding: 48px 24px; }
+
+    .section-title {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--t0);
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+    }
+
+    .section-sub {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--t2);
+      margin-bottom: 24px;
+    }
+
+    /* ── CATEGORY TABS ── */
+    .tabs {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 28px;
+    }
+
+    .tab {
+      padding: 7px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--t2);
+      transition: all .15s;
+      letter-spacing: 0.2px;
+    }
+    .tab:hover { color: var(--t0); border-color: rgba(255,255,255,0.15); }
+    .tab.active { background: var(--acc); color: #fff; border-color: var(--acc); }
+
+    /* ── SEARCH ── */
+    .search-wrap {
+      margin-bottom: 28px;
+    }
+
+    .search-input {
+      width: 100%;
+      max-width: 400px;
+      padding: 10px 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--t0);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 500;
+      outline: none;
+      transition: border-color .15s;
+    }
+    .search-input::placeholder { color: var(--t3); }
+    .search-input:focus { border-color: var(--acc); }
+
+    /* ── TUTORIAL GRID ── */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      transition: transform .15s, border-color .15s;
+      cursor: pointer;
+    }
+    .card:hover { transform: translateY(-2px); border-color: rgba(124,106,247,0.3); }
+
+    .card-thumb {
+      width: 100%;
+      aspect-ratio: 16/9;
+      background: var(--surface2);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card-thumb img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .card-thumb-placeholder {
+      width: 100%; height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #1c1d35, #16172a);
+      color: var(--t3);
+      font-size: 32px;
+    }
+
+    .card-play {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity .15s;
+    }
+    .card:hover .card-play { opacity: 1; }
+
+    .card-play svg {
+      width: 44px; height: 44px;
+      fill: #fff;
+      filter: drop-shadow(0 2px 8px rgba(0,0,0,0.5));
+    }
+
+    .card-body { padding: 12px 14px 14px; }
+
+    .card-badge {
+      display: inline-block;
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 2px 7px;
+      border-radius: 4px;
+      margin-bottom: 7px;
+    }
+    .badge-guitarra { background: rgba(96,165,250,0.12); color: var(--blue); }
+    .badge-alabanza { background: rgba(167,139,250,0.12); color: var(--acc2); }
+    .badge-bateria  { background: rgba(45,212,191,0.12); color: var(--teal); }
+    .badge-bajo     { background: rgba(74,222,128,0.12); color: var(--green); }
+    .badge-cancionero { background: rgba(248,113,113,0.12); color: var(--red); }
+    .badge-default  { background: rgba(255,255,255,0.05); color: var(--t2); }
+
+    .card-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--t0);
+      letter-spacing: -0.2px;
+      margin-bottom: 4px;
+      line-height: 1.3;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .card-meta {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--t2);
+    }
+
+    /* ── MULTITRACKS ── */
+    .mt-section { margin-top: 64px; }
+
+    .mt-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+    }
+
+    .mt-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      transition: border-color .15s;
+    }
+    .mt-card:hover { border-color: rgba(45,212,191,0.3); }
+
+    .mt-card-inner {
+      display: flex;
+      gap: 14px;
+      padding: 16px;
+      align-items: center;
+    }
+
+    .mt-img {
+      width: 64px; height: 64px;
+      border-radius: 10px;
+      object-fit: cover;
+      background: var(--surface2);
+      flex-shrink: 0;
+    }
+
+    .mt-img-placeholder {
+      width: 64px; height: 64px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #1c2535, #162035);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+
+    .mt-info { flex: 1; min-width: 0; }
+
+    .mt-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--t0);
+      letter-spacing: -0.2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .mt-meta {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--t2);
+      margin-top: 3px;
+    }
+
+    .mt-pills {
+      display: flex;
+      gap: 5px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+
+    .mt-pill {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      padding: 2px 7px;
+      border-radius: 4px;
+      background: rgba(45,212,191,0.1);
+      color: var(--teal);
+      border: 1px solid rgba(45,212,191,0.2);
+    }
+
+    .mt-footer {
+      padding: 10px 16px 14px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn-download {
+      flex: 1;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      border: 1px solid rgba(45,212,191,0.3);
+      background: rgba(45,212,191,0.08);
+      color: var(--teal);
+      text-align: center;
+      text-decoration: none;
+      transition: all .15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+    .btn-download:hover { background: rgba(45,212,191,0.15); border-color: var(--teal); }
+
+    .btn-dl-all {
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      background: var(--teal);
+      color: #0e0f13;
+      transition: opacity .15s;
+    }
+    .btn-dl-all:hover { opacity: 0.85; }
+
+    /* ── PISTAS LIST (expanded) ── */
+    .pistas-list {
+      padding: 0 16px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .pista-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      background: var(--surface2);
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+
+    .pista-tipo {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--t1);
+      text-transform: capitalize;
+      min-width: 80px;
+    }
+
+    .pista-dl {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--teal);
+      text-decoration: none;
+      padding: 4px 10px;
+      border-radius: 6px;
+      border: 1px solid rgba(45,212,191,0.25);
+      background: rgba(45,212,191,0.07);
+      transition: all .12s;
+    }
+    .pista-dl:hover { background: rgba(45,212,191,0.15); }
+
+    /* ── EMPTY/LOADING ── */
+    .state-box {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 60px 24px;
+      color: var(--t3);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .spinner {
+      width: 28px; height: 28px;
+      border: 3px solid rgba(255,255,255,0.08);
+      border-top-color: var(--acc);
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      margin: 0 auto 12px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── FOOTER ── */
+    footer {
+      margin-top: 80px;
+      border-top: 1px solid var(--border);
+      padding: 28px 40px;
+      text-align: center;
+      color: var(--t3);
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    /* ── MODAL ── */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .modal-backdrop.open { display: flex; }
+
+    .modal-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      max-width: 640px;
+      width: 100%;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    .modal-head {
+      padding: 20px 24px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--t0);
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--t2);
+      cursor: pointer;
+      font-size: 20px;
+      line-height: 1;
+      padding: 4px;
+    }
+    .modal-close:hover { color: var(--t0); }
+
+    .modal-body { padding: 20px 24px 24px; }
+
+    .yt-embed {
+      width: 100%;
+      aspect-ratio: 16/9;
+      border-radius: 10px;
+      overflow: hidden;
+      background: #000;
+      margin-bottom: 16px;
+    }
+
+    .yt-embed iframe {
+      width: 100%; height: 100%;
+      border: none;
+    }
+
+    .detail-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .detail-chip {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 6px;
+      background: var(--surface2);
+      color: var(--t2);
+      border: 1px solid var(--border);
+    }
+
+    .detail-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--t0);
+      margin-bottom: 4px;
+    }
+
+    .detail-artist {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--t2);
+      margin-bottom: 16px;
+    }
+
+    @media (max-width: 640px) {
+      header { padding: 0 16px; }
+      .hero { padding: 48px 16px 40px; }
+      main { padding: 32px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-mark">RM</div>
+    <span class="logo-name">Recurso Musical</span>
+  </div>
+  <div class="header-actions">
+    <a href="/admin/" class="btn btn-ghost">Admin</a>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="hero-badge">Tutoriales · Cancionero · Multitracks</div>
+  <h1>Recursos para<br/><span>Músicos de Iglesia</span></h1>
+  <p>Tutoriales de guitarra, cancionero con acordes y multitracks para tu ministerio de alabanza.</p>
+</section>
+
+<main>
+
+  <!-- TUTORIALES -->
+  <div id="tutSection">
+    <div class="section-title">Tutoriales</div>
+    <div class="section-sub" id="tutCount">Cargando...</div>
+
+    <div class="search-wrap">
+      <input class="search-input" id="searchInput" type="text" placeholder="Buscar por título, artista..." oninput="onSearch(this.value)"/>
+    </div>
+
+    <div class="tabs" id="tabs"></div>
+    <div class="grid" id="grid">
+      <div class="state-box"><div class="spinner"></div>Cargando tutoriales...</div>
+    </div>
+  </div>
+
+  <!-- MULTITRACKS -->
+  <div class="mt-section">
+    <div class="section-title">Multitracks</div>
+    <div class="section-sub">Descarga las pistas de cada instrumento en formato WAV</div>
+    <div class="mt-grid" id="mtGrid">
+      <div class="state-box"><div class="spinner" style="border-top-color:var(--teal)"></div>Cargando multitracks...</div>
+    </div>
+  </div>
+
+</main>
+
+<!-- MODAL -->
+<div class="modal-backdrop" id="modalBackdrop" onclick="closeModal(event)">
+  <div class="modal-box" id="modalBox">
+    <div class="modal-head">
+      <div class="modal-title" id="modalTitle"></div>
+      <button class="modal-close" onclick="closeModalBtn()">×</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<footer>
+  © 2025 Recurso Musical · Todos los derechos reservados
+</footer>
+
+<script>
+const API = '/api/api';
+const APP_SECRET = 'rm_app_2024_public';
+
+let allTuts = [];
+let currentCat = 'Todos';
+let searchTimer = null;
+let token = null;
+
+const CATEGORIES = ['Todos', 'Guitarra', 'Alabanza', 'Batería', 'Bajo', 'Piano', 'Básico'];
+const BADGE_CLASS = {
+  guitarra: 'badge-guitarra', alabanza: 'badge-alabanza', batería: 'badge-bateria',
+  bajo: 'badge-bajo', cancionero: 'badge-cancionero',
+};
+
+async function getToken() {
+  if (token) return token;
+  const r = await fetch(`${API}?action=appToken&secret=${APP_SECRET}`);
+  const d = await r.json();
+  if (d.ok) { token = d.token; }
+  return token;
+}
+
+async function apiFetch(path) {
+  const t = await getToken();
+  const r = await fetch(`${API}${path}`, { headers: { 'X-RM-Token': t } });
+  return r.json();
+}
+
+// ── TUTORIALS ─────────────────────────────────────────────
+
+function renderTabs() {
+  const tabs = document.getElementById('tabs');
+  tabs.innerHTML = CATEGORIES.map(cat =>
+    `<div class="tab ${cat === currentCat ? 'active' : ''}" onclick="setCategory('${cat}')">${cat}</div>`
+  ).join('');
+}
+
+function setCategory(cat) {
+  currentCat = cat;
+  document.getElementById('searchInput').value = '';
+  renderTabs();
+  const filtered = cat === 'Todos'
+    ? allTuts
+    : allTuts.filter(t => (t.categoria || '').toLowerCase() === cat.toLowerCase() && (!t.tipo || t.tipo === 'tutorial'));
+  renderGrid(filtered);
+}
+
+function onSearch(q) {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => {
+    const lq = q.toLowerCase().trim();
+    if (!lq) { setCategory(currentCat); return; }
+    const results = allTuts.filter(t =>
+      (t.titulo || '').toLowerCase().includes(lq) ||
+      (t.artista || '').toLowerCase().includes(lq) ||
+      (t.cancion_titulo || '').toLowerCase().includes(lq)
+    );
+    renderGrid(results);
+  }, 250);
+}
+
+function thumbUrl(t) {
+  if (t.imagen) return t.imagen;
+  if (t.youtube_id) return `https://i.ytimg.com/vi/${t.youtube_id}/mqdefault.jpg`;
+  return null;
+}
+
+function badgeClass(t) {
+  if (t.tipo === 'cancionero') return 'badge-cancionero';
+  const cat = (t.categoria || '').toLowerCase();
+  return BADGE_CLASS[cat] || 'badge-default';
+}
+
+function renderGrid(tuts) {
+  const grid = document.getElementById('grid');
+  const count = document.getElementById('tutCount');
+  count.textContent = `${tuts.length} recurso${tuts.length !== 1 ? 's' : ''}`;
+  if (!tuts.length) {
+    grid.innerHTML = '<div class="state-box">Sin resultados</div>';
+    return;
+  }
+  grid.innerHTML = tuts.map(t => {
+    const img = thumbUrl(t);
+    const thumb = img
+      ? `<img src="${img}" alt="${esc(t.titulo)}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=card-thumb-placeholder>▶</div>'"/>`
+      : `<div class="card-thumb-placeholder">▶</div>`;
+    const label = t.tipo === 'cancionero' ? (t.cancion_titulo || t.titulo) : t.titulo;
+    return `
+      <div class="card" onclick="openTutorial(${t.id})">
+        <div class="card-thumb">
+          ${thumb}
+          <div class="card-play">
+            <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          </div>
+        </div>
+        <div class="card-body">
+          <span class="card-badge ${badgeClass(t)}">${t.categoria || t.tipo || 'Tutorial'}</span>
+          <div class="card-title">${esc(label)}</div>
+          <div class="card-meta">${esc(t.artista)}${t.duracion ? ' · ' + esc(t.duracion) : ''}</div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+async function loadTutorials() {
+  try {
+    const data = await apiFetch('?action=getTutoriales&cat=Todos');
+    if (!Array.isArray(data)) throw new Error(data?.error || 'Error');
+    allTuts = data;
+    renderTabs();
+    renderGrid(allTuts);
+  } catch (e) {
+    document.getElementById('grid').innerHTML = `<div class="state-box">Error al cargar: ${esc(e.message)}</div>`;
+  }
+}
+
+async function openTutorial(id) {
+  const t = allTuts.find(x => x.id == id);
+  if (!t) return;
+  const title = t.tipo === 'cancionero' ? (t.cancion_titulo || t.titulo) : t.titulo;
+  document.getElementById('modalTitle').textContent = title;
+  let body = '';
+
+  if (t.youtube_id) {
+    body += `<div class="yt-embed"><iframe src="https://www.youtube.com/embed/${t.youtube_id}?autoplay=0" allowfullscreen loading="lazy"></iframe></div>`;
+  }
+
+  body += `<div class="detail-title">${esc(title)}</div>`;
+  body += `<div class="detail-artist">${esc(t.artista)}</div>`;
+
+  const chips = [];
+  if (t.categoria) chips.push(t.categoria);
+  if (t.duracion)  chips.push(t.duracion);
+  if (t.capo && t.capo !== '0') chips.push('Cejilla ' + t.capo);
+  if (t.cancion_tono) chips.push('Tono: ' + t.cancion_tono);
+  if (t.cancion_bpm)  chips.push(t.cancion_bpm + ' BPM');
+  if (chips.length) {
+    body += `<div class="detail-row">${chips.map(c => `<span class="detail-chip">${esc(c)}</span>`).join('')}</div>`;
+  }
+
+  if (t.cancion_letra) {
+    body += `<pre style="font-family:inherit;font-size:12px;color:var(--t1);white-space:pre-wrap;line-height:1.7;margin-top:12px;background:var(--surface2);padding:16px;border-radius:10px;border:1px solid var(--border);max-height:300px;overflow-y:auto">${esc(t.cancion_letra)}</pre>`;
+  }
+
+  document.getElementById('modalBody').innerHTML = body;
+  document.getElementById('modalBackdrop').classList.add('open');
+}
+
+// ── MULTITRACKS ────────────────────────────────────────────
+
+async function loadMultitracks() {
+  try {
+    const r = await fetch(`${API}?action=getMultitracks`);
+    const data = await r.json();
+    if (!Array.isArray(data)) throw new Error('Error');
+    renderMultitracks(data);
+  } catch (e) {
+    document.getElementById('mtGrid').innerHTML = `<div class="state-box">Error al cargar multitracks</div>`;
+  }
+}
+
+function renderMultitracks(list) {
+  const grid = document.getElementById('mtGrid');
+  if (!list.length) {
+    grid.innerHTML = '<div class="state-box">Sin multitracks disponibles</div>';
+    return;
+  }
+  grid.innerHTML = list.map(mt => {
+    const imgTag = mt.imagen_url
+      ? `<img class="mt-img" src="${esc(mt.imagen_url)}" alt="" loading="lazy" onerror="this.outerHTML='<div class=mt-img-placeholder>🎵</div>'"/>`
+      : `<div class="mt-img-placeholder">🎵</div>`;
+    const pills = [];
+    if (mt.tono)   pills.push(mt.tono);
+    if (mt.bpm)    pills.push(mt.bpm + ' BPM');
+    if (mt.compas) pills.push(mt.compas);
+    if (mt.duracion) pills.push(mt.duracion);
+    return `
+      <div class="mt-card">
+        <div class="mt-card-inner">
+          ${imgTag}
+          <div class="mt-info">
+            <div class="mt-title">${esc(mt.titulo)}</div>
+            <div class="mt-meta">${esc(mt.artista)}</div>
+            ${pills.length ? `<div class="mt-pills">${pills.map(p => `<span class="mt-pill">${esc(p)}</span>`).join('')}</div>` : ''}
+          </div>
+        </div>
+        <div class="mt-footer">
+          <button class="btn-dl-all" onclick="loadPistas(${mt.id}, this)">Ver pistas ↓</button>
+        </div>
+        <div class="pistas-list" id="pistas-${mt.id}" style="display:none"></div>
+      </div>`;
+  }).join('');
+}
+
+async function loadPistas(id, btn) {
+  const container = document.getElementById(`pistas-${id}`);
+  if (container.style.display !== 'none') {
+    container.style.display = 'none';
+    btn.textContent = 'Ver pistas ↓';
+    return;
+  }
+  btn.textContent = 'Cargando...';
+  try {
+    const r = await fetch(`${API}?action=getMultitrack&id=${id}`);
+    const data = await r.json();
+    if (!data.pistas?.length) {
+      container.innerHTML = '<div style="padding:10px 0;color:var(--t3);font-size:12px;text-align:center">Sin pistas disponibles</div>';
+    } else {
+      container.innerHTML = data.pistas.map(p =>
+        `<div class="pista-row">
+          <span class="pista-tipo">${esc(p.tipo)}</span>
+          <a class="pista-dl" href="${esc(p.url)}" download target="_blank">⬇ Descargar</a>
+        </div>`
+      ).join('');
+    }
+    container.style.display = 'flex';
+    btn.textContent = 'Ocultar pistas ↑';
+  } catch {
+    btn.textContent = 'Error';
+  }
+}
+
+// ── MODAL ──────────────────────────────────────────────────
+
+function closeModal(e) {
+  if (e.target === document.getElementById('modalBackdrop')) closeModalBtn();
+}
+
+function closeModalBtn() {
+  document.getElementById('modalBackdrop').classList.remove('open');
+  document.getElementById('modalBody').innerHTML = '';
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModalBtn(); });
+
+// ── UTILS ──────────────────────────────────────────────────
+
+function esc(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+// ── INIT ───────────────────────────────────────────────────
+
+renderTabs();
+loadTutorials();
+loadMultitracks();
+</script>
+</body>
+</html>
