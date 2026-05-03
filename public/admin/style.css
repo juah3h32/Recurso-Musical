@@ -325,4 +325,56 @@ label.lbl{font-size:9px;letter-spacing:2px;color:var(--t2);text-transform:upperc
 .login-btn{width:100%;padding:14px;background:var(--acc);color:#0d0d0d;border:none;border-radius:10px;font-family:var(--font);font-size:16px;font-weight:800;letter-spacing:.5px;cursor:pointer;transition:all .2s}
 .login-btn:hover{background:var(--acc2);transform:translateY(-2px);box-shadow:0 6px 20px rgba(181,245,0,.3)}
 .login-btn:disabled{opacity:.5;pointer-events:none}
-.login-footer{text-align:center;margin-top:18px;font-size:9px;font-weight:70
+.login-footer{text-align:center;margin-top:18px;font-size:9px;font-weight:700;color:var(--t3);letter-spacing:1px;text-transform:uppercase}
+
+/* ── USER MENU DROPDOWN ───────────────────────── */
+.user-menu-wrap{position:relative}
+.user-menu{position:absolute;top:calc(100% + 10px);right:0;width:240px;background:var(--surface);border:1px solid var(--border2);border-radius:16px;box-shadow:var(--shadow-lg);z-index:9999;display:none;overflow:hidden;animation:fadeUp .18s ease;}
+.user-menu.open{display:block}
+.user-menu-header{padding:18px 16px 14px;border-bottom:1px solid var(--border);display:flex;flex-direction:column;align-items:center;gap:8px;background:var(--surface2)}
+.user-menu-avatar-wrap{position:relative;cursor:pointer}
+.user-menu-avatar{width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,var(--acc),var(--teal));display:flex;align-items:center;justify-content:center;font-weight:800;font-size:20px;color:#0d0d0d}
+.user-menu-avatar-badge{position:absolute;bottom:-4px;right:-4px;width:20px;height:20px;border-radius:6px;background:var(--surface);border:1.5px solid var(--border2);display:flex;align-items:center;justify-content:center;cursor:pointer}
+.user-menu-avatar-badge svg{width:10px;height:10px;fill:none;stroke:var(--t2);stroke-width:2}
+.user-menu-name{font-size:13px;font-weight:800;color:var(--t0)}
+.user-menu-role{font-size:10px;font-weight:500;color:var(--t3);text-align:center}
+.user-menu-items{padding:8px 8px}
+.user-menu-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:9px;cursor:pointer;font-size:12px;font-weight:600;color:var(--t1);transition:background .12s}
+.user-menu-item:hover{background:var(--surface2);color:var(--t0)}
+.user-menu-item.danger{color:var(--red)}
+.user-menu-item.danger:hover{background:var(--red-dim)}
+.user-menu-item-icon{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.user-menu-item-icon svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2}
+.user-menu-sep{height:1px;background:var(--border);margin:4px 0}
+
+/* ── YOUTUBE INPUT (Nuevo Tutorial) ────────────── */
+.yt-input-clean{display:flex;align-items:center;gap:12px;background:var(--surface2);border:1.5px solid var(--border);border-radius:12px;padding:10px 14px;transition:border-color .2s,box-shadow .2s}
+.yt-input-clean:focus-within{border-color:rgba(255,77,77,0.6);box-shadow:0 0 0 3px rgba(255,77,77,0.1)}
+.yt-icon-wrap{width:32px;height:32px;border-radius:8px;background:rgba(255,77,77,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.yt-icon-wrap svg{width:18px;height:18px;flex-shrink:0}
+.yt-input-clean input{background:none;border:none;outline:none;flex:1;font-family:var(--font);font-size:13px;font-weight:500;color:var(--t0)}
+.yt-input-clean input::placeholder{color:var(--t3)}
+.yt-preview-card{display:none;margin-top:12px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;overflow:hidden;align-items:center;gap:12px}
+.yt-preview-card.show{display:flex}
+.yt-preview-thumb{width:120px;height:68px;object-fit:cover;flex-shrink:0}
+.yt-preview-info{padding:8px 12px 8px 0;flex:1;min-width:0}
+.yt-preview-ok{font-size:11px;font-weight:700;color:var(--green);margin-bottom:4px}
+.yt-preview-id{font-size:10px;font-weight:600;color:var(--t3);font-family:monospace;word-break:break-all}
+
+/* ── FORM SECTION TITLE ──────────────────────── */
+.form-section-title{display:flex;align-items:center;gap:7px;font-size:9px;font-weight:700;letter-spacing:2px;color:var(--t2);text-transform:uppercase;margin-bottom:10px}
+.form-section-title svg{flex-shrink:0}
+
+/* ── MULTITRACK STATS ────────────────────────── */
+#mtTotal,#mtConPistas{font-variant-numeric:tabular-nums}
+
+/* ── LOAD FILES ──────────────────────────────── */
+#importFile{display:none}
+.file-drop{border:2px dashed var(--border);border-radius:12px;padding:28px;text-align:center;transition:border-color .2s;cursor:pointer}
+.file-drop:hover{border-color:var(--acc)}
+
+/* ── MISC ────────────────────────────────────── */
+input[type=number]::-webkit-inner-spin-button{opacity:.4}
+textarea{resize:vertical}
+::selection{background:var(--acc-dim);color:var(--acc)}
+scrollbar-color:var(--border) transparent;
