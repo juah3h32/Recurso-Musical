@@ -1,6 +1,6 @@
 // Recurso Musical — Vercel Serverless API
 // Replaces rm-api/api.php with Turso (libSQL/SQLite) backend
-// env vars required: TURSO_URL, TURSO_AUTH_TOKEN, API_SECRET, APP_SECRET
+// env vars (Turso Vercel integration): TURSO_DATABASE_URL, TURSO_AUTH_TOKEN
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { createClient, type Row } from '@libsql/client';
@@ -12,7 +12,7 @@ import bcrypt from 'bcryptjs';
 // ────────────────────────────────────────────────────────────
 
 const db = createClient({
-  url: process.env.TURSO_URL!,
+  url: (process.env.TURSO_DATABASE_URL ?? process.env.TURSO_URL)!,
   authToken: process.env.TURSO_AUTH_TOKEN,
 });
 
