@@ -1,4 +1,5 @@
 {
+  "outputDirectory": "public",
   "rewrites": [
     { "source": "/rm-api/api.php", "destination": "/api/api" },
     { "source": "/rm-api/api.php(.*)", "destination": "/api/api" }
