@@ -20,6 +20,7 @@
       --acc2:  #818cf8;
       --acc-d: rgba(99,102,241,0.1);
       --teal:  #0d9488;
+      --amber: #d97706;
       --t0: #0f172a;
       --t1: #1e293b;
       --t2: #64748b;
@@ -480,21 +481,21 @@
 <div class="stats-row" id="statsRow">
   <div class="sitem">
     <div class="sicon purple">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 10l-4 4-4-4"/><rect x="3" y="3" width="18" height="18" rx="3"/></svg>
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="4"/><polygon points="10 8 16 12 10 16"/></svg>
     </div>
-    <div class="sdata"><div class="snum" id="stTuts">—</div><div class="slbl">Tutoriales</div></div>
+    <div class="sdata"><div class="snum" id="stTuts">—</div><div class="slbl" id="lblTuts">Tutoriales</div></div>
   </div>
   <div class="sitem">
     <div class="sicon amber">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="3"/><path d="M3 12h2m14 0h2M12 3v2m0 14v2"/></svg>
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
     </div>
-    <div class="sdata"><div class="snum" id="stCats">—</div><div class="slbl">Categorías</div></div>
+    <div class="sdata"><div class="snum" id="stCats">—</div><div class="slbl" id="lblCats">Canciones</div></div>
   </div>
   <div class="sitem">
     <div class="sicon teal">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 10c0-1 .9-2 2-2h1l2-4h10l2 4h1c1.1 0 2 .9 2 2v8c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2v-8z"/><path d="M12 12v4m-2-2h4"/></svg>
     </div>
-    <div class="sdata"><div class="snum" id="stMts">—</div><div class="slbl">Multitracks</div></div>
+    <div class="sdata"><div class="snum" id="stMts">—</div><div class="slbl" id="lblMts">Multitracks</div></div>
   </div>
 </div>
 </div>
@@ -526,6 +527,17 @@
       <div class="album-grid" id="grid">
         <div class="sbox"><div class="spin"></div>Cargando...</div>
       </div>
+    </div>
+  </section>
+
+  <!-- CANCIONERO -->
+  <section id="cancioneroSection" style="display:none;margin-top:8px">
+    <div class="sec-row">
+      <div class="sec-row-hd">
+        <div class="sec-row-title" id="secCanTitle">Cancionero</div>
+        <div class="sec-row-count" id="canCount"></div>
+      </div>
+      <div class="album-grid" id="canGrid"></div>
     </div>
   </section>
 
@@ -738,7 +750,7 @@ function applyI18n() {
 
 /* ══ APP ════════════════════════════════════════════════════════════ */
 const API = '/api/api', SEC = 'rm_app_2024_public';
-let allTuts = [], currentCat = 'Todos', srchTimer = null, tok = null, _featured = null;
+let allTuts = [], allCanciones = [], currentCat = 'Todos', srchTimer = null, tok = null, _featured = null;
 
 const CATS = ['Todos','Guitarra','Alabanza','Batería','Bajo','Piano','Básico','Programas'];
 
@@ -788,19 +800,20 @@ function onSearch(q) {
 
 function applySearch(q) {
   const lq = q.toLowerCase().trim();
-  if (!lq) { renderTabs(); renderGrid(allTuts); return; }
-  renderGrid(allTuts.filter(t =>
-    (t.titulo||'').toLowerCase().includes(lq) ||
+  if (!lq) { renderTabs(); renderGrid(allTuts); if (allCanciones.length) renderCancionero(allCanciones); return; }
+  const match = t => (t.titulo||'').toLowerCase().includes(lq) ||
     (t.artista||'').toLowerCase().includes(lq) ||
-    (t.cancion_titulo||'').toLowerCase().includes(lq)
-  ));
+    (t.cancion_titulo||'').toLowerCase().includes(lq);
+  renderGrid(allTuts.filter(match));
+  if (allCanciones.length) renderCancionero(allCanciones.filter(match));
 }
 
 function showDropdown(q) {
   const drop = document.getElementById('searchDrop');
   const lq = q.toLowerCase().trim();
-  if (!lq || !allTuts.length) { drop.classList.remove('open'); return; }
-  const matches = allTuts.filter(t =>
+  const all = [...allTuts, ...allCanciones];
+  if (!lq || !all.length) { drop.classList.remove('open'); return; }
+  const matches = all.filter(t =>
     (t.titulo||'').toLowerCase().includes(lq) ||
     (t.artista||'').toLowerCase().includes(lq) ||
     (t.cancion_titulo||'').toLowerCase().includes(lq)
@@ -895,17 +908,52 @@ async function loadTutorials() {
   try {
     const data = await api('?action=getTutoriales&cat=Todos');
     if (!Array.isArray(data)) throw new Error(data?.error||'Error');
-    allTuts = data;
+
+    allTuts      = data.filter(t => t.tipo !== 'cancionero');
+    allCanciones = data.filter(t => t.tipo === 'cancionero');
+
     renderTabs(); renderGrid(allTuts);
     if (allTuts.length) renderFeatured(allTuts[0]);
-    const cats = new Set(allTuts.map(t=>t.categoria).filter(Boolean));
+
+    // Cancionero section
+    if (allCanciones.length) {
+      renderCancionero(allCanciones);
+      document.getElementById('cancioneroSection').style.display = 'block';
+    }
+
     document.getElementById('stTuts').textContent = allTuts.length;
-    document.getElementById('stCats').textContent = cats.size;
+    document.getElementById('stCats').textContent = allCanciones.length;
     document.getElementById('statsRow').style.display = 'flex';
     document.getElementById('statsWrap').style.display = 'block';
   } catch(e) {
     document.getElementById('grid').innerHTML = `<div class="sbox">Error: ${esc(e.message)}</div>`;
   }
+}
+
+function renderCancionero(list) {
+  const g = document.getElementById('canGrid');
+  document.getElementById('canCount').textContent = `${list.length} canción${list.length!==1?'es':''}`;
+  g.innerHTML = list.map((t, i) => {
+    const img   = thumb(t);
+    const label = t.cancion_titulo || t.titulo;
+    return `<div class="acard" style="animation-delay:${Math.min(i*0.035,0.5)}s" onclick="openTut(${t.id})">
+      <div class="acard-art">
+        ${img
+          ? `<img src="${img}" alt="${esc(label)}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=acard-ph>🎵</div>'"/>`
+          : `<div class="acard-ph">🎵</div>`}
+        <div class="acard-hover">
+          <div class="play-fab" style="background:var(--amber)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+          </div>
+        </div>
+        <span class="acard-cat" style="background:rgba(245,158,11,0.85);color:#fff">${esc(t.categoria||'Cancionero')}</span>
+      </div>
+      <div class="acard-body">
+        <div class="acard-title">${esc(label)}</div>
+        <div class="acard-sub">${esc(t.artista||'')}${t.cancion_tono?' · '+esc(t.cancion_tono):''}</div>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 function openTut(id) {
