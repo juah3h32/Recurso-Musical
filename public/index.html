@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Recurso Musical — Tutoriales, Cancionero y Multitracks</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -28,7 +28,7 @@
 
     html { scroll-behavior: smooth; }
     body {
-      font-family: 'Inter', sans-serif;
+      font-family: 'Montserrat', sans-serif;
       background: var(--bg); color: var(--t0);
       min-height: 100vh; -webkit-font-smoothing: antialiased;
     }
@@ -57,10 +57,13 @@
     }
     .logo-name { font-size: 15px; font-weight: 700; color: var(--t0); letter-spacing: -0.3px; }
 
-    /* Search in header */
+    /* Search wrapper (positions the dropdown) */
+    .h-search-wrap {
+      flex: 1; max-width: 420px; margin: 0 auto;
+      position: relative;
+    }
     .h-search {
-      flex: 1; max-width: 400px; margin: 0 auto;
-      display: flex; align-items: center;
+      display: flex; align-items: center; width: 100%;
       background: var(--surf2); border: 1.5px solid var(--brd2);
       border-radius: 10px; overflow: hidden;
       transition: border-color .2s, box-shadow .2s;
@@ -82,6 +85,49 @@
       cursor: pointer; transition: background .15s; flex-shrink: 0; height: 100%;
     }
     .h-search-btn:hover { background: var(--acc2); }
+
+    /* Search dropdown */
+    .search-drop {
+      display: none; position: absolute; top: calc(100% + 6px); left: 0; right: 0;
+      background: var(--bg); border: 1px solid var(--brd2);
+      border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+      z-index: 999; overflow: hidden;
+      animation: fadeUp .14s ease;
+    }
+    .search-drop.open { display: block; }
+    .sdrop-item {
+      display: flex; align-items: center; gap: 11px;
+      padding: 10px 14px; cursor: pointer;
+      border-bottom: 1px solid var(--brd);
+      transition: background .1s;
+    }
+    .sdrop-item:last-child { border-bottom: none; }
+    .sdrop-item:hover { background: var(--surf2); }
+    .sdrop-thumb {
+      width: 52px; height: 30px; border-radius: 6px;
+      object-fit: cover; background: var(--surf3);
+      flex-shrink: 0; display: block;
+    }
+    .sdrop-ph { width: 52px; height: 30px; border-radius: 6px; background: var(--surf3); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+    .sdrop-info { flex: 1; min-width: 0; }
+    .sdrop-title { font-size: 13px; font-weight: 600; color: var(--t0); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sdrop-sub { font-size: 11px; color: var(--t3); margin-top: 1px; }
+    .sdrop-badge {
+      font-size: 9px; font-weight: 700; padding: 2px 7px; border-radius: 100px;
+      background: rgba(99,102,241,0.1); color: var(--acc); flex-shrink: 0; white-space: nowrap;
+    }
+    .sdrop-empty { padding: 20px 14px; text-align: center; color: var(--t3); font-size: 13px; }
+    .sdrop-hint { padding: 8px 14px; font-size: 11px; color: var(--t3); background: var(--surf); border-top: 1px solid var(--brd); }
+
+    /* Language switcher */
+    .lang-btn {
+      display: flex; align-items: center; gap: 5px;
+      padding: 5px 10px; border-radius: 8px; border: 1.5px solid var(--brd2);
+      background: var(--bg); cursor: pointer; font-family: inherit;
+      font-size: 12px; font-weight: 700; color: var(--t2);
+      transition: all .14s; flex-shrink: 0;
+    }
+    .lang-btn:hover { border-color: var(--acc); color: var(--acc); }
 
     .header-nav { display: flex; align-items: center; gap: 2px; flex-shrink: 0; }
     .h-link {
@@ -329,7 +375,7 @@
       background: var(--surf2); color: var(--t2); border: 1px solid var(--brd);
     }
     .letra-pre {
-      font-family: 'Inter', sans-serif; font-size: 12px; color: var(--t1);
+      font-family: 'Montserrat', sans-serif; font-size: 12px; color: var(--t1);
       white-space: pre-wrap; line-height: 2; background: var(--surf2);
       padding: 16px 18px; border-radius: 12px; border: 1px solid var(--brd);
       max-height: 320px; overflow-y: auto; margin-top: 12px;
@@ -391,16 +437,25 @@
     <span class="logo-name">Recurso Musical</span>
   </a>
 
-  <div class="h-search">
-    <div class="h-si">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+  <div class="h-search-wrap">
+    <div class="h-search">
+      <div class="h-si">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </div>
+      <input id="searchInput" type="text" placeholder="Buscar tutoriales, artistas..."
+        oninput="onSearch(this.value)"
+        onkeydown="if(event.key==='Enter')doSearch(); if(event.key==='Escape')closeDrop()"/>
+      <button class="h-search-btn" onclick="doSearch()" data-i18n="buscar">Buscar</button>
     </div>
-    <input id="searchInput" type="text" placeholder="Buscar tutoriales, artistas..." oninput="onSearch(this.value)" onkeydown="if(event.key==='Enter')doSearch()"/>
-    <button class="h-search-btn" onclick="doSearch()">Buscar</button>
+    <div class="search-drop" id="searchDrop"></div>
   </div>
 
   <nav class="header-nav">
-    <a class="h-link active" href="#tutSection">Tutoriales</a>
+    <button class="lang-btn" id="langBtn" onclick="toggleLang()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+      <span id="langLabel">ES</span>
+    </button>
+    <a class="h-link active" href="#tutSection" data-i18n="nav_tut">Tutoriales</a>
     <a class="h-link" href="#mtSection">Multitracks</a>
   </nav>
 </header>
@@ -622,7 +677,66 @@
   })();
 })();
 
-/* ══ APP ══════════════════════════════════════════════════════════════ */
+/* ══ I18N ════════════════════════════════════════════════════════════ */
+let lang = 'es';
+const i18n = {
+  es: {
+    buscar: 'Buscar', nav_tut: 'Tutoriales',
+    hero_eyebrow: 'Tutoriales · Cancionero · Multitracks',
+    hero_h1: 'Recursos para', hero_em: 'Músicos de Iglesia',
+    hero_sub: 'Tutoriales de guitarra, acordes cifrados y pistas de adoración para tu ministerio.',
+    placeholder: 'Buscar tutoriales, artistas...',
+    drop_empty: 'Sin resultados para', drop_hint: 'resultados encontrados',
+    sec_tut: 'Todos los tutoriales', sec_mt_sub: 'Pistas WAV por instrumento',
+    ver_tut: 'Ver tutorial', cargando: 'Cargando...', sin_res: 'Sin resultados',
+    slbl_tut: 'Tutoriales', slbl_cat: 'Categorías', slbl_mt: 'Multitracks',
+    cats: ['Todos','Guitarra','Alabanza','Batería','Bajo','Piano','Básico','Programas'],
+    footer: '© 2025 Recurso Musical · Todos los derechos reservados'
+  },
+  en: {
+    buscar: 'Search', nav_tut: 'Tutorials',
+    hero_eyebrow: 'Tutorials · Songbook · Multitracks',
+    hero_h1: 'Resources for', hero_em: 'Church Musicians',
+    hero_sub: 'Guitar tutorials, chord charts and worship backing tracks for your ministry.',
+    placeholder: 'Search tutorials, artists...',
+    drop_empty: 'No results for', drop_hint: 'results found',
+    sec_tut: 'All tutorials', sec_mt_sub: 'WAV stems by instrument',
+    ver_tut: 'Watch tutorial', cargando: 'Loading...', sin_res: 'No results',
+    slbl_tut: 'Tutorials', slbl_cat: 'Categories', slbl_mt: 'Multitracks',
+    cats: ['All','Guitar','Worship','Drums','Bass','Piano','Basics','Software'],
+    footer: '© 2025 Recurso Musical · All rights reserved'
+  }
+};
+
+function t(k) { return i18n[lang][k] || i18n.es[k] || k; }
+
+function toggleLang() {
+  lang = lang === 'es' ? 'en' : 'es';
+  document.getElementById('langLabel').textContent = lang.toUpperCase();
+  applyI18n();
+}
+
+function applyI18n() {
+  const T = i18n[lang];
+  document.getElementById('searchInput').placeholder = T.placeholder;
+  document.querySelector('[data-i18n="buscar"]').textContent = T.buscar;
+  document.querySelector('[data-i18n="nav_tut"]').textContent = T.nav_tut;
+  document.querySelector('.hero-eyebrow').innerHTML = `<span></span>${T.hero_eyebrow}<span></span>`;
+  const h1 = document.querySelector('.hero h1');
+  h1.innerHTML = `${T.hero_h1}<br/><em>${T.hero_em}</em>`;
+  document.querySelector('.hero-sub').textContent = T.hero_sub;
+  document.querySelector('.sec-row-title').textContent = T.sec_tut;
+  document.querySelectorAll('.slbl')[0].textContent = T.slbl_tut;
+  document.querySelectorAll('.slbl')[1].textContent = T.slbl_cat;
+  document.querySelectorAll('.slbl')[2].textContent = T.slbl_mt;
+  document.querySelector('footer .fcopy').textContent = T.footer;
+  // Re-render with new lang
+  currentCat = T.cats[0];
+  renderTabs();
+  renderGrid(allTuts);
+}
+
+/* ══ APP ════════════════════════════════════════════════════════════ */
 const API = '/api/api', SEC = 'rm_app_2024_public';
 let allTuts = [], currentCat = 'Todos', srchTimer = null, tok = null, _featured = null;
 
@@ -639,29 +753,37 @@ async function api(path) {
 }
 
 function renderTabs() {
-  document.getElementById('filterTabs').innerHTML = CATS.map(c =>
-    `<div class="ftab${c===currentCat?' on':''}" onclick="setCat('${c}')">${c}</div>`
-  ).join('');
+  const cats = i18n[lang].cats;
+  const all  = i18n[lang].cats[0];
+  document.getElementById('filterTabs').innerHTML = cats.map((c, i) => {
+    const orig = CATS[i] || c;
+    return `<div class="ftab${currentCat===orig||currentCat===c?' on':''}" onclick="setCat('${orig}')">${c}</div>`;
+  }).join('');
 }
 
 function setCat(cat) {
   currentCat = cat;
   document.getElementById('searchInput').value = '';
+  closeDrop();
   renderTabs();
-  const filtered = cat === 'Todos' ? allTuts
+  const all = CATS[0];
+  const filtered = cat === all ? allTuts
     : allTuts.filter(t => (t.categoria||'').toLowerCase() === cat.toLowerCase());
   renderGrid(filtered);
 }
 
+/* ── Search with live dropdown ─────────────────── */
 function doSearch() {
-  const q = document.getElementById('searchInput').value;
   clearTimeout(srchTimer);
+  const q = document.getElementById('searchInput').value;
   applySearch(q);
+  closeDrop();
 }
 
 function onSearch(q) {
   clearTimeout(srchTimer);
-  srchTimer = setTimeout(() => applySearch(q), 140);
+  showDropdown(q);
+  srchTimer = setTimeout(() => applySearch(q), 160);
 }
 
 function applySearch(q) {
@@ -673,6 +795,47 @@ function applySearch(q) {
     (t.cancion_titulo||'').toLowerCase().includes(lq)
   ));
 }
+
+function showDropdown(q) {
+  const drop = document.getElementById('searchDrop');
+  const lq = q.toLowerCase().trim();
+  if (!lq || !allTuts.length) { drop.classList.remove('open'); return; }
+  const matches = allTuts.filter(t =>
+    (t.titulo||'').toLowerCase().includes(lq) ||
+    (t.artista||'').toLowerCase().includes(lq) ||
+    (t.cancion_titulo||'').toLowerCase().includes(lq)
+  ).slice(0, 7);
+
+  if (!matches.length) {
+    drop.innerHTML = `<div class="sdrop-empty">${t('drop_empty')} "<strong>${esc(q)}</strong>"</div>`;
+  } else {
+    drop.innerHTML = matches.map(item => {
+      const label = item.tipo==='cancionero' ? (item.cancion_titulo||item.titulo) : item.titulo;
+      const img   = thumb(item);
+      const cat   = item.categoria || (item.tipo==='cancionero' ? 'Cancionero' : 'Tutorial');
+      return `<div class="sdrop-item" onclick="openTut(${item.id});closeDrop()">
+        ${img
+          ? `<img class="sdrop-thumb" src="${img}" onerror="this.style.display='none'"/>`
+          : `<div class="sdrop-ph">🎵</div>`}
+        <div class="sdrop-info">
+          <div class="sdrop-title">${esc(label)}</div>
+          <div class="sdrop-sub">${esc(item.artista||'')}</div>
+        </div>
+        <span class="sdrop-badge">${esc(cat)}</span>
+      </div>`;
+    }).join('') +
+    `<div class="sdrop-hint">${matches.length} ${t('drop_hint')}</div>`;
+  }
+  drop.classList.add('open');
+}
+
+function closeDrop() {
+  document.getElementById('searchDrop').classList.remove('open');
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('.h-search-wrap')) closeDrop();
+});
 
 function ytThumb(id) { return `https://i.ytimg.com/vi/${id}/hqdefault.jpg`; }
 function thumb(t) {
