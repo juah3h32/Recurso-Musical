@@ -148,19 +148,24 @@
 
     /* ══ STATS ═══════════════════════════════ */
     .stats-row {
-      display: none; justify-content: center;
-      background: var(--surf); border-bottom: 1px solid var(--brd);
+      display: none; justify-content: center; gap: 10px;
+      padding: 18px 24px; max-width: 1280px; margin: 0 auto;
     }
     .sitem {
-      flex: 1; max-width: 160px; text-align: center; padding: 16px 12px;
-      position: relative;
+      display: flex; align-items: center; gap: 10px;
+      background: var(--surf); border: 1px solid var(--brd);
+      border-radius: 12px; padding: 12px 20px;
     }
-    .sitem:not(:last-child)::after {
-      content: ''; position: absolute; right: 0; top: 20%; bottom: 20%;
-      width: 1px; background: var(--brd2);
+    .sicon {
+      width: 36px; height: 36px; border-radius: 9px;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
     }
-    .snum { font-size: 24px; font-weight: 900; letter-spacing: -1px; color: var(--t0); }
-    .slbl { font-size: 10px; font-weight: 500; color: var(--t3); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.8px; }
+    .sicon.purple { background: rgba(99,102,241,0.1); color: var(--acc); }
+    .sicon.teal   { background: rgba(13,148,136,0.1); color: var(--teal); }
+    .sicon.amber  { background: rgba(245,158,11,0.1); color: #d97706; }
+    .sdata { display: flex; flex-direction: column; }
+    .snum { font-size: 22px; font-weight: 900; letter-spacing: -0.8px; color: var(--t0); line-height: 1; }
+    .slbl { font-size: 11px; font-weight: 500; color: var(--t3); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.7px; }
 
     /* ══ MAIN ════════════════════════════════ */
     main { padding: 32px 24px 80px; max-width: 1280px; margin: 0 auto; }
@@ -196,9 +201,10 @@
     @keyframes fadeUp { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
 
     .acard-art {
-      width: 100%; aspect-ratio: 1/1; position: relative;
+      width: 100%; aspect-ratio: 16/9; position: relative;
       overflow: hidden; background: var(--surf2);
     }
+    .mt-album-grid .acard-art { aspect-ratio: 1/1; }
     .acard-art img {
       width: 100%; height: 100%; object-fit: cover; display: block;
       transition: transform .35s ease;
@@ -389,8 +395,8 @@
     <div class="h-si">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
     </div>
-    <input id="searchInput" type="text" placeholder="Buscar tutoriales, artistas..." oninput="onSearch(this.value)"/>
-    <button class="h-search-btn">Buscar</button>
+    <input id="searchInput" type="text" placeholder="Buscar tutoriales, artistas..." oninput="onSearch(this.value)" onkeydown="if(event.key==='Enter')doSearch()"/>
+    <button class="h-search-btn" onclick="doSearch()">Buscar</button>
   </div>
 
   <nav class="header-nav">
@@ -415,10 +421,27 @@
 </div>
 
 <!-- STATS -->
+<div style="display:none" id="statsWrap">
 <div class="stats-row" id="statsRow">
-  <div class="sitem"><div class="snum" id="stTuts">—</div><div class="slbl">Tutoriales</div></div>
-  <div class="sitem"><div class="snum" id="stCats">—</div><div class="slbl">Categorías</div></div>
-  <div class="sitem"><div class="snum" id="stMts">—</div><div class="slbl">Multitracks</div></div>
+  <div class="sitem">
+    <div class="sicon purple">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 10l-4 4-4-4"/><rect x="3" y="3" width="18" height="18" rx="3"/></svg>
+    </div>
+    <div class="sdata"><div class="snum" id="stTuts">—</div><div class="slbl">Tutoriales</div></div>
+  </div>
+  <div class="sitem">
+    <div class="sicon amber">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="3"/><path d="M3 12h2m14 0h2M12 3v2m0 14v2"/></svg>
+    </div>
+    <div class="sdata"><div class="snum" id="stCats">—</div><div class="slbl">Categorías</div></div>
+  </div>
+  <div class="sitem">
+    <div class="sicon teal">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+    </div>
+    <div class="sdata"><div class="snum" id="stMts">—</div><div class="slbl">Multitracks</div></div>
+  </div>
+</div>
 </div>
 
 <main>
@@ -630,20 +653,28 @@ function setCat(cat) {
   renderGrid(filtered);
 }
 
-function onSearch(q) {
+function doSearch() {
+  const q = document.getElementById('searchInput').value;
   clearTimeout(srchTimer);
-  srchTimer = setTimeout(() => {
-    const lq = q.toLowerCase().trim();
-    if (!lq) { setCat(currentCat); return; }
-    renderGrid(allTuts.filter(t =>
-      (t.titulo||'').toLowerCase().includes(lq) ||
-      (t.artista||'').toLowerCase().includes(lq) ||
-      (t.cancion_titulo||'').toLowerCase().includes(lq)
-    ));
-  }, 220);
+  applySearch(q);
 }
 
-function ytThumb(id) { return `https://i.ytimg.com/vi/${id}/mqdefault.jpg`; }
+function onSearch(q) {
+  clearTimeout(srchTimer);
+  srchTimer = setTimeout(() => applySearch(q), 140);
+}
+
+function applySearch(q) {
+  const lq = q.toLowerCase().trim();
+  if (!lq) { renderTabs(); renderGrid(allTuts); return; }
+  renderGrid(allTuts.filter(t =>
+    (t.titulo||'').toLowerCase().includes(lq) ||
+    (t.artista||'').toLowerCase().includes(lq) ||
+    (t.cancion_titulo||'').toLowerCase().includes(lq)
+  ));
+}
+
+function ytThumb(id) { return `https://i.ytimg.com/vi/${id}/hqdefault.jpg`; }
 function thumb(t) {
   if (t.imagen) return t.imagen;
   if (t.youtube_id) return ytThumb(t.youtube_id);
@@ -708,6 +739,7 @@ async function loadTutorials() {
     document.getElementById('stTuts').textContent = allTuts.length;
     document.getElementById('stCats').textContent = cats.size;
     document.getElementById('statsRow').style.display = 'flex';
+    document.getElementById('statsWrap').style.display = 'block';
   } catch(e) {
     document.getElementById('grid').innerHTML = `<div class="sbox">Error: ${esc(e.message)}</div>`;
   }
