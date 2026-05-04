@@ -14,7 +14,10 @@
   <div class="login-bg"></div>
   <div class="login-wrap">
     <div class="login-brand">
-      <div class="login-logo-mark">RM</div>
+      <div class="login-logo-mark">
+        <img src="../img/logo.png" alt="RM" style="width:52px;height:52px;object-fit:contain;display:block"
+          onerror="this.style.display='none';this.parentElement.appendChild(document.createTextNode('RM'))"/>
+      </div>
       <div class="login-title">Recurso Musical</div>
       <div class="login-subtitle">Panel de Administración</div>
     </div>
@@ -39,7 +42,10 @@
 
 <div class="layout">
   <aside class="sidebar">
-    <div class="sb-logo" onclick="goTo('dashboard',document.querySelector('[data-page=dashboard]'))">RM</div>
+    <div class="sb-logo" onclick="goTo('dashboard',document.querySelector('[data-page=dashboard]'))">
+      <img src="../img/logo.png" alt="RM" style="width:28px;height:28px;object-fit:contain;display:block"
+        onerror="this.style.display='none';this.parentElement.appendChild(document.createTextNode('RM'))"/>
+    </div>
     <nav class="nav-icons">
       <div class="nav-icon active" data-page="dashboard" onclick="goTo('dashboard',this)">
         <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></svg>
