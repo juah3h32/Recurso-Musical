@@ -1,0 +1,6 @@
+{
+  "buildCommand": "pnpm turbo run build --filter=@wago/web",
+  "installCommand": "pnpm install --frozen-lockfile",
+  "framework": "nextjs",
+  "outputDirectory": "apps/web/.next"
+}

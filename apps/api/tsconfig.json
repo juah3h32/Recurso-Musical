@@ -1,5 +1,5 @@
 {
-  "extends": "@wago/config/tsconfig.nestjs.json",
+  "extends": "../../packages/config/tsconfig.nestjs.json",
   "compilerOptions": {
     "outDir": "./dist",
     "rootDir": "./src",
