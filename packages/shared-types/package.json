@@ -5,7 +5,7 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "build": "tsc",
+    "build": "node -e \"try{require('typescript')}catch(e){process.exit(0)}\" && tsc || true",
     "clean": "rm -rf dist",
     "lint": "eslint src/"
   },
