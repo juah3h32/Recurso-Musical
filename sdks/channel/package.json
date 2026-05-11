@@ -1,0 +1,42 @@
+{
+  "name": "@wago/channel",
+  "version": "2.3.2",
+  "description": "WhatsApp channel for Claude Code — chat with Claude via WhatsApp",
+  "type": "module",
+  "bin": {
+    "wago-channel": "dist/index.js",
+    "wago-reminders": "dist/daemon.js"
+  },
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build"
+  },
+  "files": [
+    "dist",
+    "manifest.json"
+  ],
+  "keywords": [
+    "wago",
+    "whatsapp",
+    "claude-code",
+    "channel",
+    "mcp"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dhruvyad/wago",
+    "directory": "sdks/channel"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.1",
+    "cron-parser": "^4.9.0",
+    "ws": "^8.20.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/ws": "^8.18.1",
+    "typescript": "^5.0.0"
+  }
+}

@@ -1,0 +1,52 @@
+---
+title: Installation
+description: "Install the Wago CLI"
+---
+
+## Install script (macOS/Linux)
+
+```bash
+curl -fsSL https://wago.com/install | bash
+```
+
+This downloads the correct binary for your platform and installs it to `/usr/local/bin`.
+
+## Homebrew (macOS/Linux)
+
+```bash
+brew install dhruvyad/tap/wago
+```
+
+## npm
+
+```bash
+npm install -g @wago/cli
+```
+
+## GitHub Releases
+
+Download the binary for your platform from [GitHub Releases](https://github.com/dhruvyad/wago/releases):
+
+| Platform | Binary |
+|----------|--------|
+| macOS (Apple Silicon) | `wago-darwin-arm64` |
+| macOS (Intel) | `wago-darwin-amd64` |
+| Linux (x86_64) | `wago-linux-amd64` |
+| Linux (ARM64) | `wago-linux-arm64` |
+| Windows | `wago-windows-amd64.exe` |
+
+## Verify installation
+
+```bash
+wago --help
+```
+
+## Configure API URL
+
+By default the CLI points to `https://api.wago.com`. To change it:
+
+```bash
+wago config api-url https://api.wago.com
+```
+
+Config is stored at `~/.wago.json`.

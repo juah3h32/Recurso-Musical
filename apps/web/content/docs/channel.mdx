@@ -1,0 +1,191 @@
+---
+title: WhatsApp Channel for Claude Code
+description: "Chat with Claude Code via WhatsApp"
+---
+
+<iframe width="100%" style={{aspectRatio: '16/9'}} src="https://www.youtube.com/embed/8bS-gMBm95o" title="Wago WhatsApp Channel for Claude Code" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>
+
+Chat with [Claude Code](https://code.claude.com) directly from WhatsApp. Send a message, and Claude replies — with full access to your codebase, terminal, and tools.
+
+## Setup
+
+Two commands. Takes under a minute.
+
+```bash
+wago claude setup    # authenticates, installs channel, configures everything
+wago claude          # launches Claude Code with WhatsApp
+```
+
+That's it. `wago claude setup` only needs to run once — it handles login, API token creation, npm install, and MCP registration automatically. After that, just run `wago claude` whenever you want to use it.
+
+### Prerequisites
+
+- A [Wago account](https://wago.com/signup) with a connected WhatsApp number
+- [Claude Code](https://code.claude.com) v2.1.80+
+- Node.js 18+
+- [Wago CLI](/docs/cli/installation)
+
+### Passing flags to Claude
+
+You can pass any Claude Code flags through:
+
+```bash
+wago claude --continue            # resume last session
+wago claude --resume abc-123      # resume specific session
+wago claude --model sonnet        # use a different model
+```
+
+## Features
+
+### Text, media, reactions, and replies
+
+Claude can send and receive all message types:
+
+| Tool | Description |
+|------|-------------|
+| `wago_reply` | Reply in the same chat. Supports `reply_to` to quote a specific message. |
+| `wago_react` | React with an emoji (👍, ❤️, 😂, etc.) |
+| `wago_send` | Send a text to any phone number or group |
+| `wago_send_image` | Send an image (URL or local file) |
+| `wago_send_document` | Send a document/file (URL or local file) |
+| `wago_send_video` | Send a video (URL or local file) |
+| `wago_send_audio` | Send audio/voice (URL or local file) |
+| `wago_send_location` | Send a location pin |
+| `wago_send_contact` | Send a contact card |
+
+### Receiving media
+
+When someone sends a photo, video, or file, the channel downloads it locally so Claude can view or process it:
+
+```xml
+<channel source="wago-channel" from="1234@lid" message_id="msg_2" has_media="true">
+Check this document
+[Attached: application/pdf] Saved to: /tmp/wago-media-1234.pdf
+</channel>
+```
+
+Claude can read the file, transform it, and send the result back.
+
+### Group chats
+
+The channel works with group messages. In groups, the `from` attribute is the group ID and `sender` identifies who sent the message. Claude replies to the group and can quote specific messages with `reply_to`.
+
+### Sender gating
+
+Restrict which phone numbers can message Claude:
+
+```bash
+# In ~/.claude/channels/wago/.env
+WAGO_ALLOW=1234567890,9876543210
+```
+
+Messages from unlisted numbers are silently dropped. Leave empty to allow all.
+
+### Human-like behavior
+
+All messages follow WhatsApp's anti-ban guidelines automatically:
+- Read receipts sent immediately on message receive
+- Typing indicator shown before replying
+- Random delay based on message length
+- Stop typing before sending
+
+### Scheduled reminders
+
+Claude can schedule tasks to run at specific times — one-time or recurring via cron expressions. When a reminder comes due, it is delivered to Claude as a pending message so Claude can act on it (e.g., send a daily briefing to a group).
+
+**How it works:** A background daemon checks `~/.wago/reminders.json` every 30 seconds. When a reminder's `nextRunAt` time has passed, the daemon moves it into a pending queue (`~/.wago/pending.json`). The channel picks up pending items and delivers them to Claude when connected.
+
+| Tool | Description |
+|------|-------------|
+| `wago_schedule_reminder` | Create a reminder. Parameters: `task` (what to do), `chat_id` (target chat), `schedule` (cron expression), `one_time` (boolean). |
+| `wago_list_reminders` | List all active reminders with their next run times. |
+| `wago_cancel_reminder` | Cancel a reminder by ID. |
+
+**Setup:** The reminder daemon is automatically installed and registered with `launchd` during `wago claude setup`. No additional configuration is needed.
+
+**Example:** "Remind me to send a daily briefing to the dev group at 8am on weekdays" — Claude creates a recurring reminder with cron schedule `0 8 * * 1-5` targeting the group chat.
+
+<Callout type="info">
+Reminders require Claude to be running. If Claude is not connected when a reminder fires, the pending item is held in the queue and delivered when Claude next connects. Pending items older than 24 hours are automatically pruned.
+</Callout>
+
+**Storage:**
+- Active reminders: `~/.wago/reminders.json`
+- Pending queue: `~/.wago/pending.json`
+
+## Configuration
+
+Stored in `~/.claude/channels/wago/.env`:
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `WAGO_API_KEY` | API token (`wh_...`) | Set by `wago claude setup` |
+| `WAGO_API_URL` | API base URL | `https://api.wago.com` |
+| `WAGO_CONNECTION` | Connection ID | Auto-detected |
+| `WAGO_ALLOW` | Allowed phone numbers (comma-separated) | All |
+
+## How it works
+
+```
+You (WhatsApp) → WAHA → Wago API → WebSocket → Channel → Claude Code
+Claude Code    → wago_reply tool  → Wago API → WAHA  → You (WhatsApp)
+```
+
+The channel runs as a local MCP server alongside Claude Code. It connects to the Wago API via WebSocket for real-time message delivery — no webhooks, tunnels, or port forwarding needed. The WebSocket auto-reconnects after network interruptions or laptop sleep.
+
+## Troubleshooting
+
+**No messages appearing**
+- Restart with `wago claude` (the channel subprocess needs to be running)
+- Check for `[wago-channel] Connected to event stream` in the output
+- Verify your connection is `connected`: `wago connections list`
+
+**"No connected Wago connections found"**
+- Create and link a connection: `wago connections quick`
+
+**"No API key found"**
+- Run `wago claude setup` again
+
+**Messages from new session not arriving**
+- If you resumed a Claude session, the old channel subprocess may be stale — restart with `wago claude`
+
+## Manual setup
+
+<details>
+<summary>If you prefer to configure manually instead of using `wago claude setup`</summary>
+
+### 1. Install and configure
+
+```bash
+npm install -g @wago/channel
+wago-channel --configure wh_your_api_key
+```
+
+### 2. Register with Claude Code
+
+```bash
+claude mcp add -s user wago-channel wago-channel
+```
+
+Or add to `~/.claude.json`:
+
+```json
+{
+  "mcpServers": {
+    "wago-channel": {
+      "type": "stdio",
+      "command": "wago-channel",
+      "args": [],
+      "env": {}
+    }
+  }
+}
+```
+
+### 3. Launch
+
+```bash
+claude --dangerously-load-development-channels server:wago-channel
+```
+
+</details>

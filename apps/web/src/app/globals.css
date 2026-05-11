@@ -1,0 +1,86 @@
+@import "tailwindcss";
+@import "fumadocs-ui/css/neutral.css";
+@import "fumadocs-ui/css/preset.css";
+
+@source "../../node_modules/fumadocs-ui/dist/**/*.js";
+
+@theme {
+  /* Backgrounds */
+  --color-bg-primary: #0a0a0a;
+  --color-bg-secondary: #111111;
+  --color-bg-tertiary: #1a1a1a;
+  --color-bg-elevated: #222222;
+  --color-bg-hover: #2a2a2a;
+
+  /* WhatsApp Green Accent */
+  --color-wa-green: #25D366;
+  --color-wa-green-dark: #1da851;
+  --color-wa-green-light: #34e076;
+  --color-wa-green-muted: rgba(37, 211, 102, 0.15);
+
+  /* Text */
+  --color-text-primary: #f0f0f0;
+  --color-text-secondary: #a0a0a0;
+  --color-text-tertiary: #6b6b6b;
+  --color-text-inverse: #0a0a0a;
+
+  /* Borders */
+  --color-border-primary: #2a2a2a;
+  --color-border-secondary: #333333;
+  --color-border-accent: rgba(37, 211, 102, 0.3);
+
+  /* Status Colors */
+  --color-status-success-bg: rgba(34, 197, 94, 0.12);
+  --color-status-success-text: #4ade80;
+  --color-status-success-border: rgba(34, 197, 94, 0.25);
+
+  --color-status-warning-bg: rgba(234, 179, 8, 0.12);
+  --color-status-warning-text: #facc15;
+  --color-status-warning-border: rgba(234, 179, 8, 0.25);
+
+  --color-status-error-bg: rgba(239, 68, 68, 0.12);
+  --color-status-error-text: #f87171;
+  --color-status-error-border: rgba(239, 68, 68, 0.25);
+
+  --color-status-info-bg: rgba(59, 130, 246, 0.12);
+  --color-status-info-text: #60a5fa;
+  --color-status-info-border: rgba(59, 130, 246, 0.25);
+
+  --color-status-neutral-bg: rgba(156, 163, 175, 0.12);
+  --color-status-neutral-text: #9ca3af;
+  --color-status-neutral-border: rgba(156, 163, 175, 0.25);
+
+  --animate-fade-in: fade-in 0.3s ease-out;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background: rgba(37, 211, 102, 0.2);
+  color: var(--color-text-primary);
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Fumadocs dark theme — green accent overrides */
+:root.dark {
+  --color-fd-primary: #25D366;
+  --color-fd-primary-foreground: #0a0a0a;
+  --color-fd-ring: rgba(37, 211, 102, 0.4);
+}

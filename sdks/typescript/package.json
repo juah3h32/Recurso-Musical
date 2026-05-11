@@ -1,0 +1,22 @@
+{
+  "name": "@wago/sdk",
+  "version": "0.8.0",
+  "description": "Official Wago SDK for TypeScript/JavaScript",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": ["wago", "whatsapp", "api", "webhook", "sdk"],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dhruvyad/wago",
+    "directory": "sdks/typescript"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

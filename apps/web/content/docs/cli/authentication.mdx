@@ -1,0 +1,57 @@
+---
+title: Authentication
+description: "Log in to the Wago CLI"
+---
+
+## Browser login (default)
+
+```bash
+wago login
+```
+
+This opens your browser to `wago.com` where you can sign in with Google or email/password. If you're already logged into the dashboard, just click **Authorize CLI**.
+
+The CLI receives your session tokens automatically — no copy-pasting needed.
+
+## Email/password login
+
+```bash
+wago login --no-browser
+```
+
+Or provide credentials directly:
+
+```bash
+wago login user@example.com -p your-password
+```
+
+## Token refresh
+
+The CLI automatically refreshes expired tokens. Supabase access tokens expire after 1 hour, but the CLI uses the refresh token to get a new one transparently.
+
+## Check auth status
+
+```bash
+wago status
+```
+
+```
+  API URL: https://api.wago.com
+  Auth: authenticated
+```
+
+## Config file
+
+Authentication state is stored in `~/.wago.json`:
+
+```json
+{
+  "api_url": "https://api.wago.com",
+  "token": "eyJhbG...",
+  "refresh_token": "beo254..."
+}
+```
+
+<Callout type="warn">
+  The config file contains your auth tokens. Keep it secure and don't commit it to version control.
+</Callout>

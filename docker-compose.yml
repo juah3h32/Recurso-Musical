@@ -1,0 +1,50 @@
+name: wago
+
+services:
+
+  waha:
+    image: devlikeapro/waha
+    restart: unless-stopped
+    environment:
+      WHATSAPP_API_KEY: ${WAHA_API_KEY:-devkey}
+      WHATSAPP_DEFAULT_ENGINE: NOWEB
+    networks:
+      - internal
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    networks:
+      - internal
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      - waha
+      - redis
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      TURSO_DATABASE_URL: ${TURSO_DATABASE_URL}
+      TURSO_AUTH_TOKEN: ${TURSO_AUTH_TOKEN}
+      SUPABASE_URL: ${SUPABASE_URL}
+      ORCHESTRATOR: local
+      WAHA_HOST: waha
+      WAHA_API_KEY: ${WAHA_API_KEY:-devkey}
+      WAHA_MAX_SESSIONS: 1
+      WAHA_PORT: 3000
+      REDIS_URL: redis://redis:6379
+      API_URL: ${API_URL:-http://localhost:3001}
+      FRONTEND_URL: ${FRONTEND_URL:-https://wago.com}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
+    ports:
+      - "3001:3001"
+    networks:
+      - internal
+
+networks:
+  internal:
+    driver: bridge

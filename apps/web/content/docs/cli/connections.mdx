@@ -1,0 +1,143 @@
+---
+title: Connections
+description: "Manage WhatsApp connections from the CLI"
+---
+
+## List connections
+
+```bash
+wago connections list
+```
+
+```
+ID                                    STATUS      SESSION                         PHONE
+────────────────────────────────────  ──────────  ──────────────────────────────  ──────────────
+24ed01e6-bd9b-4f24-94b7-f4834c0b28c2  working     u_a80ffc986f8b_s_35a28b3871e5
+
+1 connection(s)
+```
+
+## Quick connect (recommended)
+
+```bash
+wago connections quick
+```
+
+Gets a connection ready to scan — reuses an existing idle connection if available, or creates a new one. The QR code is saved as a PNG and opened automatically. One command instead of create + qr.
+
+Alias: `wago c q`
+
+## Create a connection
+
+```bash
+wago connections create
+```
+
+```
+Created connection d7e5f208-... (status: pending)
+```
+
+## Get QR code
+
+```bash
+wago connections qr CONNECTION_ID --poll
+```
+
+The `--poll` flag retries until the QR is available (worker may need a few seconds to boot). The QR code is saved as a PNG file and opened automatically.
+
+## Get connection details
+
+```bash
+wago connections get CONNECTION_ID
+```
+
+## Get WhatsApp profile
+
+```bash
+wago connections me CONNECTION_ID
+```
+
+## List recent chats
+
+```bash
+wago connections chats CONNECTION_ID
+```
+
+## Send a message
+
+```bash
+wago connections send CONNECTION_ID CHAT_ID "Your message here"
+```
+
+Example:
+```bash
+wago connections send d7e5f208-... 1234567890@s.whatsapp.net "Hello from CLI!"
+```
+
+## Send media
+
+Pass a URL or a local file path — the CLI auto-detects which and handles base64 encoding for local files.
+
+```bash
+# Image by URL
+wago connections send-image CONNECTION_ID CHAT_ID https://example.com/photo.jpg --caption "Check this out"
+
+# Image from local file
+wago connections send-image CONNECTION_ID CHAT_ID ./photo.png
+
+# Document (auto-detects filename from path)
+wago connections send-document CONNECTION_ID CHAT_ID ./report.pdf
+
+# Video
+wago connections send-video CONNECTION_ID CHAT_ID ./clip.mp4
+
+# Audio/voice
+wago connections send-audio CONNECTION_ID CHAT_ID ./voice.ogg
+```
+
+## Send location
+
+```bash
+wago connections send-location CONNECTION_ID CHAT_ID 37.7749 -122.4194 --name "San Francisco"
+```
+
+## Send contact card
+
+```bash
+wago connections send-contact CONNECTION_ID CHAT_ID "John Doe" 1234567890
+```
+
+## Restart a connection
+
+```bash
+wago connections restart CONNECTION_ID
+```
+
+This fully resets the WAHA session (you'll need to scan QR again).
+
+## Delete a connection
+
+```bash
+wago connections delete CONNECTION_ID
+```
+
+## Claude Code integration
+
+Set up WhatsApp as a channel for Claude Code in one command:
+
+```bash
+wago claude setup    # login, install channel, create token, configure MCP
+wago claude          # launch Claude Code with WhatsApp
+```
+
+See the [Channel docs](/docs/channel) for details.
+
+## Aliases
+
+All connection commands support the alias `conn` or `c`:
+
+```bash
+wago c list
+wago c create
+wago c qr CONNECTION_ID --poll
+```

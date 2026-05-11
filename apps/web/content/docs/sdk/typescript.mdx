@@ -1,0 +1,264 @@
+---
+title: TypeScript SDK
+description: "Official Wago SDK for TypeScript and JavaScript"
+---
+
+## Installation
+
+```bash
+npm install @wago/sdk
+```
+
+## Quick start
+
+```typescript
+import { Wago } from '@wago/sdk';
+
+const client = new Wago({ apiKey: 'wh_...' });
+
+// List connections
+const connections = await client.listConnections();
+
+// Send a message
+await client.sendMessage(connectionId, '1234@s.whatsapp.net', 'Hello!');
+```
+
+## Configuration
+
+```typescript
+const client = new Wago({
+  apiKey: 'wh_...',
+  baseUrl: 'https://api.wago.com', // optional, defaults to production
+});
+```
+
+## API Reference
+
+### Connections
+
+```typescript
+// List all active connections
+const connections: Connection[] = await client.listConnections();
+
+// Create a new connection
+const connection: Connection = await client.createConnection();
+
+// Get a scannable connection (reuses idle or creates new)
+const scannable = await client.getOrCreateScannableConnection();
+// scannable.id, scannable.status, scannable.qr (base64 PNG)
+
+// Get connection details
+const connection: Connection = await client.getConnection(id);
+
+// Delete a connection
+await client.deleteConnection(id);
+
+// Restart a connection
+const connection: Connection = await client.restartConnection(id);
+
+// Get QR code for linking
+const qr = await client.getQR(connectionId);
+// qr.value = base64 PNG
+
+// Get recent chats
+const chats: Chat[] = await client.getChats(connectionId);
+
+// Get WhatsApp profile info
+const profile: Profile = await client.getProfile(connectionId);
+
+// Send a text message
+const result: SendResult = await client.sendMessage(connectionId, chatId, text);
+
+// Send an image (by URL)
+await client.sendImage(connectionId, chatId, { url: 'https://example.com/photo.jpg', caption: 'Check this out' });
+
+// Send an image (by base64)
+await client.sendImage(connectionId, chatId, { data: 'iVBORw0KGgo...', mimetype: 'image/png' });
+
+// Send a document
+await client.sendDocument(connectionId, chatId, { url: 'https://example.com/report.pdf', filename: 'report.pdf' });
+
+// Send a video
+await client.sendVideo(connectionId, chatId, { url: 'https://example.com/clip.mp4', caption: 'Watch this' });
+
+// Send audio
+await client.sendAudio(connectionId, chatId, { url: 'https://example.com/voice.ogg' });
+
+// Send a location
+await client.sendLocation(connectionId, chatId, 37.7749, -122.4194, 'San Francisco', '123 Main St');
+
+// Send a contact card
+await client.sendContact(connectionId, chatId, 'John Doe', '1234567890');
+```
+
+All send methods include human-like presence (read receipt, typing, delay) by default. To disable:
+
+```typescript
+await client.sendMessage(connectionId, chatId, text, { skipPresence: true });
+await client.sendImage(connectionId, chatId, { url: '...', skipPresence: true });
+```
+
+### Replies and Reactions
+
+```typescript
+// Quote a specific message
+await client.sendMessage(connectionId, chatId, 'Thanks!', { replyTo: 'msg_id_here' });
+
+// React to a message with an emoji
+await client.react(connectionId, chatId, 'msg_id_here', '👍');
+
+// Remove a reaction
+await client.react(connectionId, chatId, 'msg_id_here', '');
+```
+
+### Presence
+
+```typescript
+// Manual presence control
+await client.markRead(connectionId, chatId);       // send read receipt ✓✓
+await client.startTyping(connectionId, chatId);    // show "typing..."
+await client.stopTyping(connectionId, chatId);     // clear typing indicator
+```
+
+### Webhooks
+
+```typescript
+// List webhooks for a connection
+const webhooks: WebhookConfig[] = await client.listWebhooks(connectionId);
+
+// Create a webhook
+const webhook: WebhookConfig = await client.createWebhook(
+  connectionId,
+  'https://example.com/hook',
+  ['message', 'message.any'] // optional, defaults to ['*']
+);
+
+// Update a webhook
+const updated: WebhookConfig = await client.updateWebhook(webhookId, {
+  url: 'https://example.com/new-hook',
+  events: ['message'],
+  active: false,
+});
+
+// Delete a webhook
+await client.deleteWebhook(webhookId);
+
+// Get delivery logs
+const logs: WebhookLog[] = await client.getWebhookLogs(webhookId);
+
+// Send a test event
+const result = await client.testWebhook(webhookId);
+```
+
+### Real-time Events
+
+Listen for WhatsApp events (messages, status changes) in real-time via WebSocket:
+
+```typescript
+const stream = client.listen();
+
+stream.onmessage = (event) => {
+  console.log(event.event);        // "message"
+  console.log(event.connectionId); // connection UUID
+  console.log(event.payload);      // WAHA event payload
+};
+
+stream.onerror = (err) => console.error(err);
+
+// Auto-reconnects on disconnect. Close when done:
+// stream.close();
+```
+
+#### Handling media messages
+
+When a message includes media (image, video, document, audio), the payload contains `hasMedia: true` and a `media` object with a proxied URL:
+
+```typescript
+stream.onmessage = async (event) => {
+  if (event.event !== 'message') return;
+
+  const { payload } = event;
+  console.log(payload.body); // caption or text
+
+  if (payload.hasMedia) {
+    console.log(payload.media.mimetype); // e.g. "image/jpeg"
+    console.log(payload.media.url);      // proxied URL
+
+    // Download the media file (requires auth)
+    const response = await fetch(payload.media.url, {
+      headers: { Authorization: `Bearer ${apiKey}` },
+    });
+    const buffer = await response.arrayBuffer();
+    // ... save or process the file
+  }
+};
+```
+
+The `media.url` points to the Wago media proxy (`/connections/:id/media/:filename`), which streams the file from the internal WAHA worker. It requires the same `Authorization` header as other API calls.
+
+### API Tokens
+
+```typescript
+// List active tokens
+const tokens: ApiToken[] = await client.listTokens();
+
+// Create a new token (raw token shown once)
+const token = await client.createToken('my-token');
+console.log(token.token); // "wh_a1b2c3..."
+
+// Revoke a token
+await client.revokeToken(tokenId);
+```
+
+### Billing
+
+```typescript
+// Get billing status (subscription, slots)
+const status = await client.getBillingStatus();
+console.log(status.slots); // { paid: 5, used: 3, available: 2 }
+
+// Programmatically scale connection slots (charges immediately)
+const result = await client.setSlots(10);
+console.log(result);
+// { slots: 10, status: "upgraded", proratedAmount: 1.25, currency: "usd" }
+```
+
+`setSlots` charges (or credits) the prorated difference immediately against the card on file. Requires an active subscription — call `checkout` first to set up billing. Maximum 100 slots per account by default; contact support for higher limits.
+
+## Error handling
+
+The SDK throws `WagoError` for non-2xx responses:
+
+```typescript
+import { Wago } from '@wago/sdk';
+
+try {
+  await client.getConnection('nonexistent-id');
+} catch (error) {
+  if (error instanceof Error && 'statusCode' in error) {
+    console.log(error.message);    // "Connection not found"
+    console.log(error.statusCode); // 404
+    console.log(error.body);       // full error response
+  }
+}
+```
+
+## Types
+
+The SDK exports all types for TypeScript users:
+
+```typescript
+import type {
+  Connection,
+  ScannableConnection,
+  WebhookConfig,
+  WebhookLog,
+  ApiToken,
+  Chat,
+  Profile,
+  SendResult,
+  BillingStatus,
+  SlotUpdate,
+  WagoOptions,
+} from '@wago/sdk';
+```
