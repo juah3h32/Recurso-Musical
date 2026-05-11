@@ -1,5 +1,6 @@
 {
   "framework": "astro",
+  "rootDirectory": "apps/web",
   "installCommand": "pnpm install --no-frozen-lockfile",
-  "buildCommand": "cd apps/web && npx astro build"
+  "buildCommand": "astro build"
 }
