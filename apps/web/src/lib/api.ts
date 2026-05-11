@@ -1,4 +1,10 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+function getApiUrl() {
+  if (typeof window !== 'undefined' && (window as any).__API_URL__) {
+    return (window as any).__API_URL__;
+  }
+  return "http://localhost:3001";
+}
+const API_URL = getApiUrl();
 
 export async function apiFetch(path: string, options: RequestInit = {}) {
   const { createClient } = await import("@/lib/supabase/client");

@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect, useRef, startTransition } from "react";
-import { usePathname } from "next/navigation";
-import Link from "next/link";
+import { usePathname } from "@/lib/next-shim";
+import { Link } from "@/lib/next-shim";
 import { NavLinks } from "@/app/(dashboard)/nav-links";
 import { SignOutButton } from "@/app/(dashboard)/sign-out-button";
 

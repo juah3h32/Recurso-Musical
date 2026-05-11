@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { Link } from "@/lib/next-shim";
+import { usePathname } from "@/lib/next-shim";
 
 const navItems = [
   { href: "/connections", label: "Connections" },

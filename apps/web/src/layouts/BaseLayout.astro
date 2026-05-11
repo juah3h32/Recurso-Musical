@@ -1,0 +1,29 @@
+---
+const { title } = Astro.props;
+const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL || '';
+const supabaseKey = import.meta.env.PUBLIC_SUPABASE_PUBLISHABLE_KEY || '';
+const apiUrl = import.meta.env.PUBLIC_API_URL || 'http://localhost:3001';
+---
+
+<html lang="es" class="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>
+
+<script>
+  window.__SUPABASE_URL__ = "{supabaseUrl}";
+  window.__SUPABASE_KEY__ = "{supabaseKey}";
+  window.__API_URL__ = "{apiUrl}";
+</script>
+
+<style is:global>
+  @import '../styles/global.css';
+</style>

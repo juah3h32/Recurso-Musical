@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
+import { useRouter } from "@/lib/next-shim";
+import { Link } from "@/lib/next-shim";
 import { apiFetch } from "@/lib/api";
 
 export default function NewConnectionPage() {

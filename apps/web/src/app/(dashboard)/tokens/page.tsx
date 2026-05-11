@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
+import { Link } from "@/lib/next-shim";
 import { apiFetch } from "@/lib/api";
 import { useApiData } from "@/lib/cache";
 import { useToast } from "@/components/toast";

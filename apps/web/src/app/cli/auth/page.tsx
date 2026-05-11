@@ -1,9 +1,9 @@
 "use client";
 
 import { Suspense, useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams } from "@/lib/next-shim";
 import { createClient } from "@/lib/supabase/client";
-import Link from "next/link";
+import { Link } from "@/lib/next-shim";
 
 function CLIAuthContent() {
   const searchParams = useSearchParams();

@@ -1,0 +1,148 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import MobileNav from '../components/MobileNav';
+const year = new Date().getFullYear();
+---
+
+<BaseLayout title="WAGO — WhatsApp Webhooks, Instant Setup">
+    <div class="relative min-h-screen bg-bg-primary">
+      <!-- Grid background -->
+      <div
+        class="pointer-events-none fixed inset-0 z-0"
+        style="background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px); background-size: 80px 80px;"
+      ></div>
+
+      <!-- Gradient glow -->
+      <div class="pointer-events-none fixed inset-0 z-0 flex items-start justify-center">
+        <div class="mt-32 h-[600px] w-[800px] rounded-full bg-wa-green/[0.04] blur-[120px]"></div>
+      </div>
+
+      <!-- Nav -->
+      <nav class="sticky top-0 z-50 border-b border-border-primary bg-bg-primary/70 backdrop-blur-xl">
+        <div class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+          <a href="/" class="flex items-center gap-2">
+            <img src="/logo.svg" alt="" class="h-7 w-7" />
+            <span class="text-xl font-bold">
+              <span class="text-wa-green">WA</span>
+              <span class="text-white">GO</span>
+            </span>
+          </a>
+
+          <div class="hidden items-center gap-5 sm:flex">
+            <a href="/login" class="rounded-lg bg-wa-green px-4 py-2 text-sm font-semibold text-text-inverse hover:bg-wa-green-dark transition-colors">
+              Iniciar sesión
+            </a>
+          </div>
+
+          <MobileNav client:load />
+        </div>
+      </nav>
+
+      <!-- Hero -->
+      <section class="relative z-10 px-6 py-36">
+        <div class="mx-auto max-w-4xl text-center">
+          <h1 class="text-5xl font-bold leading-[1.1] tracking-tight sm:text-7xl">
+            WhatsApp,{" "}
+            <br class="hidden sm:block" />
+            <span class="text-wa-green">Configuración Instantánea</span>
+          </h1>
+          <p class="mx-auto mt-8 max-w-2xl text-lg leading-relaxed text-text-secondary">
+            Conectá números de WhatsApp, recibí webhooks en tiempo real y enviá
+            mensajes — todo a través de una API simple. Sin infraestructura que gestionar.
+          </p>
+          <div class="mt-10 flex items-center justify-center gap-4">
+            <a href="/login" class="rounded-lg bg-wa-green px-7 py-3 text-sm font-semibold text-text-inverse transition-all hover:bg-wa-green-dark hover:shadow-lg hover:shadow-wa-green/20">
+              Iniciar sesión
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- Demo video -->
+      <section class="relative z-10 px-6 pb-20">
+        <div class="mx-auto max-w-6xl">
+          <div class="overflow-hidden rounded-xl border border-border-primary shadow-2xl shadow-black/20">
+            <video autoplay loop muted playsinline class="w-full">
+              <source src="/demo.webm" type="video/webm" />
+              <source src="/demo.mp4" type="video/mp4" />
+            </video>
+          </div>
+        </div>
+      </section>
+
+      <!-- How it works -->
+      <section class="relative z-10 border-t border-border-primary px-6 py-28">
+        <div class="mx-auto max-w-6xl">
+          <p class="text-center text-xs font-semibold uppercase tracking-widest text-wa-green">
+            Cómo funciona
+          </p>
+          <h2 class="mt-3 text-center text-3xl font-bold">
+            Tres pasos para conectar WhatsApp
+          </h2>
+          <div class="mt-16 grid gap-6 sm:grid-cols-3">
+            <div class="rounded-xl border border-border-primary bg-bg-secondary/50 p-6 backdrop-blur-sm transition-all duration-200 hover:border-border-secondary hover:bg-bg-secondary">
+              <span class="font-mono text-xs text-wa-green/60">01</span>
+              <h3 class="mt-3 text-lg font-semibold text-text-primary">Conectá tu número</h3>
+              <p class="mt-2 text-sm leading-relaxed text-text-secondary">Creá una conexión y escaneá el código QR con WhatsApp para vincular tu número.</p>
+            </div>
+            <div class="rounded-xl border border-border-primary bg-bg-secondary/50 p-6 backdrop-blur-sm transition-all duration-200 hover:border-border-secondary hover:bg-bg-secondary">
+              <span class="font-mono text-xs text-wa-green/60">02</span>
+              <h3 class="mt-3 text-lg font-semibold text-text-primary">Configurá los webhooks</h3>
+              <p class="mt-2 text-sm leading-relaxed text-text-secondary">Definí la URL de tu endpoint y elegí qué eventos recibir — mensajes, cambios de estado y más.</p>
+            </div>
+            <div class="rounded-xl border border-border-primary bg-bg-secondary/50 p-6 backdrop-blur-sm transition-all duration-200 hover:border-border-secondary hover:bg-bg-secondary">
+              <span class="font-mono text-xs text-wa-green/60">03</span>
+              <h3 class="mt-3 text-lg font-semibold text-text-primary">Empezá a usarlo</h3>
+              <p class="mt-2 text-sm leading-relaxed text-text-secondary">Usá la API REST para enviar mensajes y procesar eventos entrantes en tiempo real.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Features -->
+      <section class="relative z-10 border-t border-border-primary px-6 py-28">
+        <div class="mx-auto max-w-6xl">
+          <p class="text-center text-xs font-semibold uppercase tracking-widest text-wa-green">Plataforma</p>
+          <h2 class="mt-3 text-center text-3xl font-bold">Todo lo que necesitás</h2>
+          <p class="mx-auto mt-4 max-w-2xl text-center text-text-secondary">Una plataforma completa para integrar WhatsApp en tu empresa.</p>
+          <div class="mt-16 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {[
+              { title: "Infraestructura gestionada", desc: "Contenedores WAHA en la nube con escalado automático y monitoreo de salud. Sin DevOps." },
+              { title: "Sesiones persistentes", desc: "El estado de autenticación de WhatsApp se guarda en la base de datos. Las sesiones sobreviven reinicios." },
+              { title: "Entrega de webhooks", desc: "Payloads firmados con HMAC-SHA256, reintentos con backoff exponencial (5 intentos) y cola de mensajes fallidos." },
+              { title: "API REST completa", desc: "Endpoints para enviar mensajes, obtener chats, gestionar conexiones y consultar logs de entrega." },
+              { title: "Tokens de API", desc: "Acceso programático seguro con tokens de API personales para integrar con cualquier sistema." },
+              { title: "Seguro por defecto", desc: "Claves de API cifradas, aislamiento de red privada y webhooks firmados." },
+            ].map((f) => (
+              <div class="rounded-xl border border-border-primary bg-bg-secondary/50 p-6 backdrop-blur-sm transition-all duration-200 hover:border-border-secondary hover:bg-bg-secondary">
+                <h3 class="text-sm font-semibold text-text-primary">{f.title}</h3>
+                <p class="mt-2 text-sm leading-relaxed text-text-secondary">{f.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <!-- CTA -->
+      <section class="relative z-10 border-t border-border-primary px-6 py-28">
+        <div class="mx-auto max-w-2xl text-center">
+          <h2 class="text-3xl font-bold">¿Listo para empezar?</h2>
+          <p class="mx-auto mt-4 text-text-secondary">Conectá tu número de WhatsApp y empezá a recibir eventos en minutos.</p>
+          <a href="/login" class="mt-8 inline-block rounded-lg bg-wa-green px-8 py-3 text-sm font-semibold text-text-inverse transition-all hover:bg-wa-green-dark hover:shadow-lg hover:shadow-wa-green/20">
+            Iniciar sesión
+          </a>
+        </div>
+      </section>
+
+      <!-- Footer -->
+      <footer class="relative z-10 border-t border-border-primary px-6 py-8">
+        <div class="mx-auto max-w-6xl flex flex-col items-center gap-3 sm:flex-row sm:justify-between">
+          <span class="flex items-center gap-1.5 text-sm font-bold">
+            <img src="/logo.svg" alt="" class="h-5 w-5" />
+            <span class="text-wa-green">WA</span><span class="text-white">GO</span>
+          </span>
+          <p class="text-xs text-text-tertiary">&copy; {year} WAGO — Todos los derechos reservados.</p>
+        </div>
+      </footer>
+    </div>
+</BaseLayout>

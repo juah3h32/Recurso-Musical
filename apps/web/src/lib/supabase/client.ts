@@ -1,8 +1,21 @@
-import { createBrowserClient } from "@supabase/ssr";
+import { createClient as createSupabaseClient } from '@supabase/supabase-js';
+
+function getSupabaseConfig() {
+  if (typeof window !== 'undefined') {
+    return {
+      url: (window as any).__SUPABASE_URL__ || '',
+      key: (window as any).__SUPABASE_KEY__ || '',
+    };
+  }
+  return { url: '', key: '' };
+}
 
 export function createClient() {
-  return createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
-  );
+  const { url, key } = getSupabaseConfig();
+  return createSupabaseClient(url, key, {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+    },
+  });
 }

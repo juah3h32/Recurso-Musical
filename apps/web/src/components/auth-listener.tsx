@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/lib/next-shim";
 import posthog from "posthog-js";
 import { createClient } from "@/lib/supabase/client";
 

@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState, useCallback, useRef } from "react";
-import { useParams, useRouter } from "next/navigation";
-import Link from "next/link";
+import { useParams, useRouter } from "@/lib/next-shim";
+import { Link } from "@/lib/next-shim";
 import { apiFetch } from "@/lib/api";
 import { useApiData } from "@/lib/cache";
 import { StatusBadge } from "@/components/status-badge";
