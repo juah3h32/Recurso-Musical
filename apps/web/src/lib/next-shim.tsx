@@ -1,8 +1,10 @@
 // Polyfill for next/navigation and next/link in Astro context.
-// Existing React components use next/navigation hooks — these shims
-// provide compatible replacements so components work unchanged.
+// All window accesses are guarded for SSR safety.
+
+const isBrowser = typeof window !== 'undefined';
 
 export function useRouter() {
+  if (!isBrowser) return { push: () => {}, replace: () => {}, refresh: () => {}, back: () => {} };
   return {
     push: (url: string) => { window.location.href = url; },
     replace: (url: string) => { window.location.replace(url); },
@@ -12,12 +14,10 @@ export function useRouter() {
 }
 
 export function useParams<T = Record<string, string>>(): T {
-  // Astro pages pass params as props — try to read from window or URL
+  if (!isBrowser) return {} as T;
   const path = window.location.pathname;
-  // For dynamic routes like /dashboard/connections/[id], extract the id
   const segments = path.split('/').filter(Boolean);
   const result: Record<string, string> = {};
-  // Attempt to match common patterns
   if (segments.length >= 3 && segments[0] === 'dashboard' && segments[1] === 'connections' && segments[2]) {
     result.id = segments[2];
   }
@@ -25,14 +25,15 @@ export function useParams<T = Record<string, string>>(): T {
 }
 
 export function usePathname(): string {
+  if (!isBrowser) return '';
   return window.location.pathname;
 }
 
 export function useSearchParams() {
+  if (!isBrowser) return new URLSearchParams();
   return new URLSearchParams(window.location.search);
 }
 
-// Simple <a> tag wrapper that mimics next/link
 export function Link({ href, children, className, ...props }: {
   href: string;
   children: React.ReactNode;

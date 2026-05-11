@@ -4,5 +4,5 @@ import TokensPage from '../../app/(dashboard)/tokens/page.tsx';
 ---
 
 <DashboardLayout title="API Tokens — WAGO">
-  <TokensPage client:load />
+  <TokensPage client:only="react" />
 </DashboardLayout>

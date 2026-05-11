@@ -4,5 +4,5 @@ import ConnectionsPage from '../../app/(dashboard)/connections/page.tsx';
 ---
 
 <DashboardLayout title="Connections — WAGO">
-  <ConnectionsPage client:load />
+  <ConnectionsPage client:only="react" />
 </DashboardLayout>
