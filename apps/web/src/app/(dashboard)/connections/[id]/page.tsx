@@ -305,7 +305,7 @@ export default function ConnectionDetailPage() {
     if (!confirmed) return;
 
     // Optimistic: navigate immediately
-    router.push("/connections");
+    router.push("/dashboard/connections");
     apiFetch(`/api/connections/${id}`, { method: "DELETE" })
       .then(() => {
         toast("Connection deleted", "success");
@@ -460,7 +460,7 @@ export default function ConnectionDetailPage() {
 
   const backLink = (
     <Link
-      href="/connections"
+      href="/dashboard/connections"
       className="inline-flex items-center gap-1.5 text-sm text-text-secondary transition-colors duration-150 hover:text-text-primary"
     >
       <svg

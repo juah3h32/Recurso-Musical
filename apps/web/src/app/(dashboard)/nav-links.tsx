@@ -4,8 +4,8 @@ import { Link } from "@/lib/next-shim";
 import { usePathname } from "@/lib/next-shim";
 
 const navItems = [
-  { href: "/connections", label: "Connections" },
-  { href: "/tokens", label: "API Tokens" },
+  { href: "/dashboard/connections", label: "Connections" },
+  { href: "/dashboard/tokens", label: "API Tokens" },
 ];
 
 export function NavLinks() {

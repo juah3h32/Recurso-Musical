@@ -21,7 +21,7 @@ export default function NewConnectionPage() {
         method: "POST",
         body: JSON.stringify({ name: name || undefined }),
       });
-      router.push(`/connections/${connection.id}`);
+      router.push(`/dashboard/connections/${connection.id}`);
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Failed to create connection"
@@ -33,7 +33,7 @@ export default function NewConnectionPage() {
   return (
     <div className="animate-fade-in">
       <Link
-        href="/connections"
+        href="/dashboard/connections"
         className="inline-flex items-center gap-1.5 text-sm text-text-secondary transition-colors duration-150 hover:text-text-primary"
       >
         <svg

@@ -50,7 +50,7 @@ export default function ConnectionsPage() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-text-primary">Connections</h1>
         <Link
-          href="/connections/new"
+          href="/dashboard/connections/new"
           className="rounded-lg bg-wa-green px-4 py-2 text-sm font-semibold text-text-inverse transition-colors duration-150 hover:bg-wa-green-dark"
         >
           Nueva Conexión
@@ -77,7 +77,7 @@ export default function ConnectionsPage() {
             Creá tu primera conexión de WhatsApp para comenzar.
           </p>
           <Link
-            href="/connections/new"
+            href="/dashboard/connections/new"
             className="mt-6 rounded-lg bg-wa-green px-5 py-2.5 text-sm font-semibold text-text-inverse transition-colors duration-150 hover:bg-wa-green-dark"
           >
             Crear conexión

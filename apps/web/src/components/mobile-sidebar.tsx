@@ -59,7 +59,7 @@ export function MobileSidebar({ email }: { email: string }) {
           {/* Sidebar panel */}
           <aside className="absolute inset-y-0 left-0 flex w-64 flex-col border-r border-border-primary bg-bg-secondary shadow-xl">
             <div className="flex items-center justify-between border-b border-border-primary px-5 py-4">
-              <Link href="/connections" className="flex items-center gap-2">
+              <Link href="/dashboard/connections" className="flex items-center gap-2">
                 <img src="/logo.svg" alt="" className="h-6 w-6" />
                 <span className="text-lg font-bold"><span className="text-wa-green">WA</span><span className="text-white">GO</span></span>
               </Link>
