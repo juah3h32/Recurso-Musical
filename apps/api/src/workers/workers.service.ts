@@ -110,6 +110,25 @@ export class WorkersService implements OnModuleInit {
     try {
       const result = await this.orchestrator.provisionWorker();
 
+      // If a worker with this podName already exists, reuse it
+      const [existingForPod] = await this.db
+        .select()
+        .from(wahaWorkers)
+        .where(eq(wahaWorkers.podName, result.podName))
+        .limit(1);
+
+      if (existingForPod) {
+        this.logger.log(
+          `Reusing existing worker ${existingForPod.id} for pod ${result.podName}`,
+        );
+        return {
+          id: existingForPod.id,
+          internalIp: existingForPod.internalIp,
+          apiKey: existingForPod.apiKeyEnc,
+          ingressSecret: existingForPod.ingressSecret,
+        };
+      }
+
       const [inserted] = await this.db
         .insert(wahaWorkers)
         .values({

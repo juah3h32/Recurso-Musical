@@ -2,7 +2,8 @@
   "name": "wago",
   "private": true,
   "scripts": {
-    "build": "pnpm --filter @wago/web build",
+    "build": "turbo run build",
+    "dev": "turbo run dev",
     "db:migrate": "pnpm --filter @wago/db db:migrate:run",
     "db:generate": "pnpm --filter @wago/db db:generate",
     "db:push": "pnpm --filter @wago/db db:push",
@@ -10,6 +11,7 @@
     "test": "pnpm --filter @wago/api test"
   },
   "devDependencies": {
+    "turbo": "^2.4.4",
     "typescript": "^5.7.3"
   },
   "packageManager": "pnpm@9.15.4"

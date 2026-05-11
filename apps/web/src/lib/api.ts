@@ -6,9 +6,17 @@ function getApiUrl() {
 }
 const API_URL = getApiUrl();
 
+// Singleton Supabase client to avoid "Multiple GoTrueClient instances" warning
+let _clientPromise: Promise<any> | null = null;
+function getSupabaseClient() {
+  if (!_clientPromise) {
+    _clientPromise = import("@/lib/supabase/client").then((m) => m.createClient());
+  }
+  return _clientPromise;
+}
+
 export async function apiFetch(path: string, options: RequestInit = {}) {
-  const { createClient } = await import("@/lib/supabase/client");
-  const supabase = createClient();
+  const supabase = await getSupabaseClient();
 
   const {
     data: { session },

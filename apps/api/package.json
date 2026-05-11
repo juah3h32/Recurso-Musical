@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "_build": "node -e \"try{require('@nestjs/core')}catch(e){console.log('skipping api build (no deps)');process.exit(0)}\" && nest build",
+    "build": "node -e \"try{require('@nestjs/core')}catch(e){console.log('skipping api build (no deps)');process.exit(0)}\" && nest build",
     "dev": "nest start --watch --no-type-check",
     "start": "node dist/main",
     "test": "jest",

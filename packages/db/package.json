@@ -5,7 +5,7 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "_build": "node scripts/build.cjs",
+    "build": "node scripts/build.cjs",
     "clean": "rm -rf dist",
     "lint": "eslint src/",
     "db:generate": "drizzle-kit generate",
