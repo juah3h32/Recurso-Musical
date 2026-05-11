@@ -1,0 +1,7 @@
+{
+  "framework": "astro",
+  "rootDirectory": "apps/web",
+  "installCommand": "pnpm install --no-frozen-lockfile",
+  "buildCommand": "pnpm --filter @wago/shared-types build && cd apps/web && astro build",
+  "outputDirectory": "apps/web/dist"
+}
