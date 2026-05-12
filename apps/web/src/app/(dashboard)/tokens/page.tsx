@@ -23,7 +23,17 @@ interface CreatedToken {
   token: string;
 }
 
+import DashboardProviders from "@/components/DashboardProviders";
+
 export default function TokensPage() {
+  return (
+    <DashboardProviders>
+      <TokensPageContent />
+    </DashboardProviders>
+  );
+}
+
+function TokensPageContent() {
   const { toast } = useToast();
   const { confirm } = useConfirm();
 

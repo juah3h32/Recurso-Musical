@@ -99,7 +99,17 @@ function ChatAvatar({
   );
 }
 
+import DashboardProviders from "@/components/DashboardProviders";
+
 export default function ConnectionDetailPage() {
+  return (
+    <DashboardProviders>
+      <ConnectionDetailPageContent />
+    </DashboardProviders>
+  );
+}
+
+function ConnectionDetailPageContent() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const { toast } = useToast();

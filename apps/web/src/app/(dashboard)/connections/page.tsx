@@ -19,7 +19,17 @@ interface QrData {
   mimetype: string;
 }
 
+import DashboardProviders from "@/components/DashboardProviders";
+
 export default function ConnectionsPage() {
+  return (
+    <DashboardProviders>
+      <ConnectionsPageContent />
+    </DashboardProviders>
+  );
+}
+
+function ConnectionsPageContent() {
   const {
     data: connections,
     loading,

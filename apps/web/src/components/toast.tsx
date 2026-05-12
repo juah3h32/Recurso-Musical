@@ -21,16 +21,16 @@ interface ToastContextValue {
 
 const ToastContext = createContext<ToastContextValue | null>(null);
 
-export function useToast() {
-  const ctx = useContext(ToastContext);
-  // During SSR or if provider is missing, return no-op to avoid crash
-  if (!ctx) {
-    if (typeof window !== 'undefined') {
-      console.warn('useToast must be used within ToastProvider');
-    }
-    return { toast: () => {} };
+// Global function to trigger toasts from anywhere (even outside React islands)
+export function toast(message: string, type: "success" | "error" = "success") {
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("wago-toast", { detail: { message, type } }));
   }
-  return ctx;
+}
+
+export function useToast() {
+  // We return the global toast function so it works everywhere
+  return { toast };
 }
 
 function ToastItem({
@@ -73,7 +73,7 @@ function ToastItem({
   );
 }
 
-export function ToastProvider({ children }: { children: ReactNode }) {
+export function ToastProvider({ children }: { children?: ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
   const dismiss = useCallback((id: string) => {
@@ -88,10 +88,19 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     []
   );
 
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const { message, type } = (e as CustomEvent).detail;
+      addToast(message, type);
+    };
+    window.addEventListener("wago-toast", handler);
+    return () => window.removeEventListener("wago-toast", handler);
+  }, [addToast]);
+
   return (
     <ToastContext.Provider value={{ toast: addToast }}>
       {children}
-      <div className="pointer-events-none fixed bottom-4 right-4 z-50 flex flex-col gap-2">
+      <div className="pointer-events-none fixed bottom-4 right-4 z-[9999] flex flex-col gap-2">
         {toasts.map((t) => (
           <ToastItem key={t.id} toast={t} onDismiss={dismiss} />
         ))}

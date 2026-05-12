@@ -1,4 +1,5 @@
 ---
+import { ToastProvider } from '../components/toast';
 const { title } = Astro.props;
 const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL ?? '';
 const supabaseKey = import.meta.env.PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? '';
@@ -25,6 +26,7 @@ const apiUrl = import.meta.env.PUBLIC_API_URL ?? '';
   </head>
   <body>
     <slot />
+    <ToastProvider client:load />
   </body>
 </html>
 
