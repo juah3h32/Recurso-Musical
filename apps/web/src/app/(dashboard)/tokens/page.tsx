@@ -150,7 +150,7 @@ export default function TokensPage() {
       </p>
       <div className="mt-2.5 flex flex-wrap gap-2">
         <Link
-          href="/docs/sdk/typescript"
+          href="/docs/sdk/typescript" onClick={(e) => { e.preventDefault(); window.open('https://github.com/juah3h32/WAGO', '_blank'); }}
           className="inline-flex items-center gap-1.5 rounded-md border border-border-primary px-2.5 py-1 text-xs text-text-tertiary transition-colors duration-150 hover:border-border-secondary hover:text-text-secondary"
         >
           TypeScript SDK Quickstart
