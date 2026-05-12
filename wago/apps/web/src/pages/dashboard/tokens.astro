@@ -1,0 +1,8 @@
+---
+import DashboardLayout from '../../layouts/DashboardLayout.astro';
+import TokensPage from '../../app/(dashboard)/tokens/page.tsx';
+---
+
+<DashboardLayout title="API Tokens — WAGO">
+  <TokensPage client:load />
+</DashboardLayout>

@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RM — Admin</title>
+  <meta name="robots" content="noindex, nofollow"/>
+  <meta name="googlebot" content="noindex, nofollow"/>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div id="loginScreen">
+  <div class="login-bg"></div>
+  <div class="login-wrap">
+    <div class="login-brand">
+      <div class="login-logo-mark">
+        <img src="../img/logo.png" alt="RM" style="width:52px;height:52px;object-fit:contain;display:block"
+          onerror="this.style.display='none';this.parentElement.appendChild(document.createTextNode('RM'))"/>
+      </div>
+      <div class="login-title">Recurso Musical</div>
+      <div class="login-subtitle">Panel de Administración</div>
+    </div>
+    <div class="login-card">
+      <div class="login-field">
+        <label>Usuario</label>
+        <div class="liw"><input type="text" id="loginUser" placeholder="admin" autocomplete="username" onkeydown="if(event.key==='Enter')document.getElementById('loginPass').focus()"/></div>
+      </div>
+      <div class="login-field">
+        <label>Contraseña</label>
+        <div class="liw">
+          <input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"/>
+          <button class="toggle-pwd" type="button" onclick="togglePwd()" id="togglePwdBtn">👁</button>
+        </div>
+      </div>
+      <div class="login-error" id="loginError"><span>⚠</span><span id="loginErrorMsg">Credenciales incorrectas</span></div>
+      <button class="login-btn" id="loginBtn" onclick="doLogin()">ENTRAR</button>
+      <div class="login-footer">Acceso Restringido · Solo Administrador</div>
+    </div>
+  </div>
+</div>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sb-logo" onclick="goTo('dashboard',document.querySelector('[data-page=dashboard]'))">
+      <img src="../img/logo.png" alt="RM" style="width:28px;height:28px;object-fit:contain;display:block"
+        onerror="this.style.display='none';this.parentElement.appendChild(document.createTextNode('RM'))"/>
+    </div>
+    <nav class="nav-icons">
+      <div class="nav-icon active" data-page="dashboard" onclick="goTo('dashboard',this)">
+        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></svg>
+        <span class="tip">Dashboard</span>
+      </div>
+      <div class="nav-icon" data-page="tutoriales" onclick="goTo('tutoriales',this)">
+        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M15 10l4.553-2.069A1 1 0 0121 8.882v6.236a1 1 0 01-1.447.894L15 14M3 8a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/></svg>
+        <span class="tip">Tutoriales</span>
+      </div>
+      <div class="nav-icon" data-page="nuevo" onclick="goTo('nuevo',this);clearTutForm()">
+        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
+        <span class="tip">Nuevo Tutorial</span>
+      </div>
+      <div class="nav-sep"></div>
+      <div class="nav-icon" data-page="cancionero" onclick="goTo('cancionero',this)">
+        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-3v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="15" r="3"/></svg>
+        <span class="tip">Cancionero</span>
+      </div>
+      <div class="nav-icon" data-page="nuevaCancion" onclick="goTo('nuevaCancion',this)">
+        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/><path d="M19 3l-7 3-7-3"/></svg>
+        <span class="tip">Nueva Canción</span>
+      </div>
+      <div class="nav-icon" data-page="importar" onclick="goTo('importar',this)">
+        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4"/><path d="M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2"/></svg>
+        <span class="tip">Importar JSON</span>
+      </div>
+      <div class="nav-icon" data-page="multitracks" onclick="goTo('multitracks',this)">
+        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="8" y2="18"/><line x1="12" y1="3" x2="12" y2="21"/><line x1="16" y1="8" x2="16" y2="16"/><line x1="4" y1="10" x2="4" y2="14"/><line x1="20" y1="10" x2="20" y2="14"/></svg>
+        <span class="tip">Multitracks</span>
+      </div>
+      <div class="nav-sep"></div>
+      <div class="nav-icon" data-page="config" onclick="goTo('config',this)">
+        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15a3 3 0 100-6 3 3 0 000 6z"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        <span class="tip">Configuración</span>
+      </div>
+    </nav>
+    <div class="nav-bottom">
+      <div class="nav-icon" onclick="doLogout()" style="color:rgba(255,255,255,0.25)">
+        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+        <span class="tip">Cerrar Sesión</span>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div class="topbar-title" id="topTitle">Dashboard</div>
+
+      <div class="search-pill" id="searchBox">
+        <div class="search-wrap" style="width:210px">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" placeholder="Buscar..." id="searchInput" oninput="onSearch()"/>
+        </div>
+      </div>
+
+      <div class="topbar-right">
+        <div class="theme-toggle" onclick="toggleTheme()" title="Cambiar modo"><div class="knob" id="themeKnob">☀️</div></div>
+        <div class="topbar-action"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0" stroke-linecap="round"/></svg><div class="notif-badge"></div></div>
+        <div class="topbar-action" onclick="loadAll()" title="Recargar"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 109-9M3 3v4h4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <button class="btn-new" id="topNewBtn" style="display:none" onclick="topNewAction()">
+          <svg style="width:13px;height:13px;fill:none;stroke:#0d0d0d;stroke-width:2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg>
+          <span id="topNewTxt">Nuevo</span>
+        </button>
+
+        <div class="user-menu-wrap" id="userMenuWrap">
+          <div class="topbar-user" id="topbarUser" onclick="toggleUserMenu()">
+            <div class="user-avatar" id="userAvatarTop">A</div>
+            <div class="user-info">
+              <div class="user-name" id="userNameTop">Admin</div>
+              <div class="user-role">Administrador</div>
+            </div>
+            <div class="user-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6,9 12,15 18,9"/></svg></div>
+          </div>
+
+          <div class="user-menu" id="userMenu">
+            <div class="user-menu-header">
+              <div class="user-menu-avatar-wrap">
+                <div class="user-menu-avatar" id="userMenuAvatar" onclick="openAvatarModal()">A</div>
+                <div class="user-menu-avatar-badge" onclick="openAvatarModal()">
+                  <svg viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                </div>
+              </div>
+              <div class="user-menu-name" id="userMenuName">Admin</div>
+              <div class="user-menu-role">Administrador · Recurso Musical</div>
+            </div>
+            <div class="user-menu-items">
+              <div class="user-menu-item" onclick="closeUserMenu();openAvatarModal()"><div class="user-menu-item-icon" style="background:var(--acc-dim);color:var(--acc)"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>Editar perfil y avatar</div>
+              <div class="user-menu-item" onclick="closeUserMenu();toggleTheme()"><div class="user-menu-item-icon" style="background:var(--blue-dim);color:var(--blue)"><svg viewBox="0 0 24 24" id="themeMenuIcon"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></div><span id="themeMenuLabel">Modo Claro</span></div>
+              <div class="user-menu-item" onclick="closeUserMenu();goTo('config',document.querySelector('[data-page=config]'))"><div class="user-menu-item-icon" style="background:var(--purple-dim);color:var(--purple)"><svg viewBox="0 0 24 24"><path d="M12 15a3 3 0 100-6 3 3 0 000 6z"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></div>Configuración</div>
+              <div class="user-menu-sep"></div>
+              <div class="user-menu-item danger" onclick="closeUserMenu();doLogout()"><div class="user-menu-item-icon" style="background:var(--red-dim);color:var(--red)"><svg viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg></div>Cerrar Sesión</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page active" id="page-dashboard">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:22px">
+        <div>
+          <div style="font-size:11px;font-weight:600;color:var(--t2);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px">Bienvenido de vuelta 👋</div>
+          <div style="font-size:24px;font-weight:800;color:var(--t0);letter-spacing:-.5px" id="welcomeName">Admin</div>
+        </div>
+        <div style="font-size:11px;font-weight:600;color:var(--t2)" id="dashDate"></div>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-card-top"><div class="stat-icon" style="background:var(--acc-dim)"><svg style="width:18px;height:18px;fill:none;stroke:var(--acc);stroke-width:1.8" viewBox="0 0 24 24"><path d="M15 10l4.553-2.069A1 1 0 0121 8.882v6.236a1 1 0 01-1.447.894L15 14M3 8a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/></svg></div><div class="stat-change up" id="sc-tut">+0</div></div><div class="stat-val" id="st-tut">—</div><div class="stat-label">Tutoriales</div><div class="stat-sparkline"><div class="stat-sparkline-fill" style="background:var(--acc);width:70%"></div></div></div>
+        <div class="stat-card"><div class="stat-card-top"><div class="stat-icon" style="background:var(--teal-dim)"><svg style="width:18px;height:18px;fill:none;stroke:var(--teal);stroke-width:1.8" viewBox="0 0 24 24"><path d="M9 18V5l12-3v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="15" r="3"/></svg></div><div class="stat-change up" id="sc-can">+0</div></div><div class="stat-val" id="st-can">—</div><div class="stat-label">Cancionero</div><div class="stat-sparkline"><div class="stat-sparkline-fill" style="background:var(--teal);width:55%"></div></div></div>
+        <div class="stat-card"><div class="stat-card-top"><div class="stat-icon" style="background:var(--blue-dim)"><svg style="width:18px;height:18px;fill:none;stroke:var(--blue);stroke-width:1.8" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div><div class="stat-change up">+0</div></div><div class="stat-val" id="st-letra">—</div><div class="stat-label">Con Cifrado</div><div class="stat-sparkline"><div class="stat-sparkline-fill" style="background:var(--blue);width:40%"></div></div></div>
+        <div class="stat-card"><div class="stat-card-top"><div class="stat-icon" style="background:var(--amber-dim)"><svg style="width:18px;height:18px;fill:none;stroke:var(--amber);stroke-width:1.8" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div><div class="stat-change neutral">—</div></div><div class="stat-val" id="st-favs">—</div><div class="stat-label">Favoritos</div><div class="stat-sparkline"><div class="stat-sparkline-fill" style="background:var(--amber);width:30%"></div></div></div>
+        <div class="stat-card"><div class="stat-card-top"><div class="stat-icon" style="background:var(--purple-dim)"><svg style="width:18px;height:18px;fill:none;stroke:var(--purple);stroke-width:1.8" viewBox="0 0 24 24"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg></div><div class="stat-change neutral">—</div></div><div class="stat-val" id="st-cats">—</div><div class="stat-label">Categorías</div><div class="stat-sparkline"><div class="stat-sparkline-fill" style="background:var(--purple);width:80%"></div></div></div>
+      </div>
+      <div class="dash-grid" style="margin-bottom:16px">
+        <div class="panel"><div class="panel-hd"><div><div class="panel-title">Tutoriales por Categoría</div><div class="panel-sub">Distribución de contenido</div></div><span class="panel-action" onclick="loadAll()">↻ Actualizar</span></div><div class="panel-bd"><div class="chart-wrap" style="height:220px"><canvas id="chartCats"></canvas></div></div></div>
+        <div class="panel"><div class="panel-hd"><div><div class="panel-title">Estado del Cancionero</div><div class="panel-sub">Canciones con y sin cifrado</div></div></div><div class="panel-bd" style="display:flex;align-items:center;gap:24px"><div class="chart-wrap" style="height:200px;max-width:200px"><canvas id="chartDoughnut"></canvas></div><div style="flex:1;display:flex;flex-direction:column;gap:12px" id="doughnutLegend"></div></div></div>
+      </div>
+      <div class="dash-grid-3">
+        <div class="panel" style="grid-column:span 2"><div class="panel-hd"><div><div class="panel-title">Últimos Agregados</div><div class="panel-sub">8 más recientes</div></div><span class="panel-action" onclick="goTo('tutoriales',document.querySelector('[data-page=tutoriales]'))">Ver todos →</span></div><div id="recentTable"><div class="state-box" style="padding:32px"><div class="spinner"></div></div></div></div>
+        <div class="panel"><div class="panel-hd"><div><div class="panel-title">Actividad</div><div class="panel-sub">Lo más reciente</div></div></div><div class="panel-bd" style="padding:8px 18px"><div class="act-feed" id="activityFeed"><div class="state-box" style="padding:24px"><div class="spinner" style="width:16px;height:16px;border-width:1.5px"></div></div></div></div></div>
+      </div>
+    </div>
+
+    <div class="page" id="page-tutoriales">
+      <div class="filter-row">
+        <span class="chip active" onclick="setFilter('Todos',this)">Todos</span>
+        <span class="chip" onclick="setFilter('Guitarra',this)">🎸 Guitarra</span>
+        <span class="chip" onclick="setFilter('Piano',this)">🎹 Piano</span>
+        <span class="chip" onclick="setFilter('Multitracks',this)">🎚 Multitracks</span>
+        <span class="chip" onclick="setFilter('Programas',this)">💻 Programas</span>
+      </div>
+      <div class="tcard" id="mainTableWrap"><div class="state-box"><div class="spinner"></div></div></div>
+    </div>
+
+    <div class="page" id="page-nuevo">
+      <input type="hidden" id="editId"/>
+      <div class="wizard-wrap">
+        <div class="steps-rail">
+          <div class="steps-rail-title">Nuevo Tutorial</div>
+          <button class="step-btn active" id="tw-btn-1" onclick="goWizStep(1)"><div class="step-num" id="tw-num-1">1</div><div><div class="step-label">Video</div><div class="step-sublabel">YouTube ID</div></div></button>
+          <div class="step-connector"></div>
+          <button class="step-btn" id="tw-btn-2" onclick="goWizStep(2)"><div class="step-num" id="tw-num-2">2</div><div><div class="step-label">Canción</div><div class="step-sublabel">Datos musicales</div></div></button>
+          <div class="step-connector"></div>
+          <button class="step-btn" id="tw-btn-3" onclick="goWizStep(3)"><div class="step-num" id="tw-num-3">3</div><div><div class="step-label">Cifrado IA</div><div class="step-sublabel">Gemini · opcional</div></div></button>
+          <div class="step-connector"></div>
+          <button class="step-btn" id="tw-btn-4" onclick="goWizStep(4)"><div class="step-num" id="tw-num-4">4</div><div><div class="step-label">Guardar</div><div class="step-sublabel">Revisar y publicar</div></div></button>
+          <div style="margin-top:auto;padding:14px;border-top:1px solid var(--border)">
+            <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;color:var(--t2);margin-bottom:7px;text-transform:uppercase">Gemini Key</div>
+            <div style="display:flex;gap:6px;align-items:center">
+              <input type="password" id="geminiKeyInput" placeholder="AIzaSy..." style="font-size:11px;padding:7px 10px;border-radius:7px;flex:1"/>
+              <button class="btn btn-ghost btn-sm" onclick="saveGeminiKey()">OK</button>
+            </div>
+            <span id="keySaved" style="font-size:9px;margin-top:5px;display:none;color:var(--acc);font-weight:700">✓ Guardada</span>
+          </div>
+        </div>
+        <div class="wizard-content" id="tw-content">
+          <div class="step-panel active" id="tw-step-1">
+            <div class="step-hdr"><div class="step-hdr-num">Paso 01 / 04</div><div class="step-hdr-title">¿Cuál es el video?</div><div class="step-hdr-sub">Pega el link o ID de YouTube y opcionalmente vincula con el cancionero</div></div>
+            <div style="margin-bottom:20px">
+              <div style="font-size:10px;font-weight:700;color:var(--t2);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px"><svg style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2" viewBox="0 0 24 24"><path d="M22.54 6.42a2.78 2.78 0 00-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46a2.78 2.78 0 00-1.95 1.96A29 29 0 001 12a29 29 0 00.46 5.58A2.78 2.78 0 003.41 19.6C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 001.95-1.95A29 29 0 0023 12a29 29 0 00-.46-5.58z"/></svg>Video de YouTube</div>
+              <div class="yt-input-clean" id="ytHero"><div class="yt-icon-wrap"><svg viewBox="0 0 24 24"><path d="M22.54 6.42a2.78 2.78 0 00-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46a2.78 2.78 0 00-1.95 1.96A29 29 0 001 12a29 29 0 00.46 5.58A2.78 2.78 0 003.41 19.6C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 001.95-1.95A29 29 0 0023 12a29 29 0 00-.46-5.58z" stroke="none" fill="rgba(255,77,77,0.3)"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="#ff4d4d" stroke="none"/></svg></div><input type="text" id="f_youtube_id" placeholder="Pega el link o ID del video..." oninput="updateYtPrev()" autocomplete="off"/><div id="ytStatusDot" style="width:8px;height:8px;border-radius:50%;background:var(--border);flex-shrink:0;transition:background .3s"></div></div>
+              <div class="yt-preview-card" id="ytPreviewStrip"><img id="ytPrev" class="yt-preview-thumb" alt=""/><div class="yt-preview-info"><div class="yt-preview-ok"><svg style="width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:2.5;display:inline;margin-right:3px;vertical-align:middle" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Video detectado correctamente</div><div class="yt-preview-id" id="ytMetaId">—</div></div></div>
+            </div>
+            <div class="sp-card">
+              <div class="sp-hdr"><div class="sp-hdr-icon"><svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:var(--teal);stroke-width:2"><path d="M9 18V5l12-3v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="15" r="3"/></svg></div><div><div class="sp-hdr-title">Vincular del Cancionero</div></div><span style="font-size:10px;font-weight:600;color:var(--t2);margin-left:auto" id="spCount"></span></div>
+              <div class="sp-body">
+                <div class="sp-wrap"><div class="sp-input-row"><svg style="width:13px;height:13px;fill:none;stroke:var(--t2);stroke-width:2;flex-shrink:0" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" id="spInput" placeholder="Busca una canción..." oninput="spSearch()" onfocus="spSearch()" autocomplete="off"/></div><div class="sp-drop" id="spDropdown"></div></div>
+                <div class="sp-selected" id="spSelected"><div class="sp-sel-cover" id="spCoverEl"><svg style="width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8" viewBox="0 0 24 24"><path d="M9 18V5l12-3v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="15" r="3"/></svg></div><div style="flex:1;min-width:0"><div class="sp-sel-name" id="spSelName">—</div><div class="sp-sel-artist" id="spSelArtist"></div><div class="sp-sel-pills" id="spSelTags"></div></div><div style="display:flex;flex-direction:column;gap:5px;align-items:flex-end;flex-shrink:0"><span style="font-size:9px;font-weight:700;color:var(--acc);letter-spacing:1px">✓ OK</span><button class="btn btn-ghost btn-sm" onclick="spClear()">✕</button></div></div>
+              </div>
+            </div>
+            <div class="wizard-nav"><span class="wizard-progress">Paso 1 de 4</span><div class="wizard-nav-btns"><button class="btn btn-ghost" onclick="clearTutForm()">Limpiar</button><button class="btn btn-acc" onclick="goWizStep(2)">Siguiente →</button></div></div>
+          </div>
+          <div class="step-panel" id="tw-step-2">
+            <div class="step-hdr" style="margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid var(--border);"><div class="step-hdr-num" style="margin-bottom: 2px; font-size: 9px;">Paso 02 / 04</div><div class="step-hdr-title" id="s2Title" style="font-size: 20px;">Datos del Tutorial</div><div class="step-hdr-sub" id="s2Sub" style="margin-top: 2px; font-size: 11px;">Vincula o escribe la canción, tono y detalles</div></div>
+            <div style="margin-bottom: 14px;">
+              <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;">
+                <div class="cat-option selected" id="cat-Guitarra" onclick="selectCat('Guitarra')" style="padding: 8px; display: flex; align-items: center; justify-content: center; gap: 6px; margin: 0; border-radius: 8px;"><div class="cat-icon-svg" style="margin: 0;"><svg style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2" viewBox="0 0 24 24"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg></div><div class="cat-name" style="font-size: 11px;">Guitarra</div></div>
+                <div class="cat-option" id="cat-Piano" onclick="selectCat('Piano')" style="padding: 8px; display: flex; align-items: center; justify-content: center; gap: 6px; margin: 0; border-radius: 8px;"><div class="cat-icon-svg" style="margin: 0;"><svg style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 4v8M10 4v5M14 4v8M18 4v5M2 12h20"/></svg></div><div class="cat-name" style="font-size: 11px;">Piano</div></div>
+                <div class="cat-option" id="cat-Multitracks" onclick="selectCat('Multitracks')" style="padding: 8px; display: flex; align-items: center; justify-content: center; gap: 6px; margin: 0; border-radius: 8px;"><div class="cat-icon-svg" style="margin: 0;"><svg style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2" viewBox="0 0 24 24"><line x1="8" y1="6" x2="8" y2="18"/><line x1="12" y1="3" x2="12" y2="21"/><line x1="16" y1="8" x2="16" y2="16"/><line x1="4" y1="10" x2="4" y2="14"/><line x1="20" y1="10" x2="20" y2="14"/></svg></div><div class="cat-name" style="font-size: 11px;">Multitracks</div></div>
+                <div class="cat-option" id="cat-Programas" onclick="selectCat('Programas')" style="padding: 8px; display: flex; align-items: center; justify-content: center; gap: 6px; margin: 0; border-radius: 8px;"><div class="cat-icon-svg" style="margin: 0;"><svg style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/><polyline points="9 9 12 12 15 9"/></svg></div><div class="cat-name" style="font-size: 11px;">Programas</div></div>
+              </div>
+              <input type="hidden" id="f_categoria" value="Guitarra"/>
+            </div>
+            <div id="s2LinkedBadge" style="display:none;background:linear-gradient(135deg,var(--acc-dim),var(--teal-dim));border:1px solid rgba(181,245,0,0.25);border-radius:8px;padding:8px 14px;margin-bottom:14px;align-items:center;gap:10px"><div style="width:28px;height:28px;border-radius:6px;background:var(--acc-dim);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg style="width:14px;height:14px;fill:none;stroke:var(--acc);stroke-width:2.2" viewBox="0 0 24 24"><path d="M9 18V5l12-3v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="15" r="3"/></svg></div><div style="flex:1"><div style="font-size:12px;font-weight:800;color:var(--acc)" id="s2LinkedName">—</div><div style="font-size:10px;font-weight:500;color:var(--t2);margin-top:1px;">Datos cargados desde el cancionero</div></div><button class="btn btn-ghost btn-sm" onclick="spClear();renderStep2Fields()" style="font-size:9px; padding: 4px 8px;">Desvincular</button></div>
+            <div id="s2BasicFields" style="margin-bottom: 14px;">
+              <div class="form-section-title" style="margin-bottom: 8px;"><svg style="width:12px;height:12px;fill:none;stroke:var(--t2);stroke-width:2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Información Básica</div>
+              <div style="display: grid; grid-template-columns: 2.5fr 1fr; gap: 10px; margin-bottom: 10px;">
+                <div class="clean-field"><label class="clean-label">Título del tutorial <span style="color:var(--red)">*</span></label><input type="text" class="clean-input" id="f_titulo" placeholder="Santo - Marcos Witt | Guitarra" style="padding: 8px 12px; font-size: 12px;"/></div>
+                <div class="clean-field" id="s2DuracionWrap"><label class="clean-label">Duración <span class="opt">(opc)</span></label><input type="text" class="clean-input" id="f_duracion" placeholder="4:32" style="padding: 8px 12px; font-size: 12px;"/></div>
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                <div class="clean-field" id="s2ArtistaWrap"><label class="clean-label">Artista / Autor <span style="color:var(--red)">*</span></label><input type="text" class="clean-input" id="f_artista" placeholder="Marcos Witt" style="padding: 8px 12px; font-size: 12px;"/></div>
+                <div class="clean-field" id="s2SongNameWrap"><label class="clean-label">Nombre de la canción</label><input type="text" class="clean-input" id="f_cancion_titulo" placeholder="Santo" style="padding: 8px 12px; font-size: 12px;"/></div>
+              </div>
+              <div class="clean-field" id="s2DescWrap"><label class="clean-label">Descripción <span class="opt">(opc)</span></label><input type="text" class="clean-input" id="f_descripcion" placeholder="" style="padding: 8px 12px; font-size: 12px;"/></div>
+            </div>
+            <div id="s2MusicFields" style="display:none; margin-bottom: 12px;">
+              <div class="form-section-title" style="margin-bottom: 8px;"><svg style="width:12px;height:12px;fill:none;stroke:var(--t2);stroke-width:2" viewBox="0 0 24 24"><path d="M9 18V5l12-3v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="15" r="3"/></svg>Datos Musicales<span id="s2MusicFromCancionero" style="display:none;font-size:9px;font-weight:700;color:var(--acc);background:var(--acc-dim);padding:2px 6px;border-radius:4px;letter-spacing:.5px;text-transform:none;font-family:var(--font);margin-left:8px;">Auto-rellenado</span></div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 2fr; gap: 10px;">
+                <div class="clean-field"><label class="clean-label">Tono</label><select class="clean-select" id="f_cancion_tono" style="padding: 8px 12px; font-size: 12px;"><option value="">—</option><option>C</option><option>C#</option><option>Db</option><option>D</option><option>D#</option><option>Eb</option><option>E</option><option>F</option><option>F#</option><option>Gb</option><option>G</option><option>G#</option><option>Ab</option><option>A</option><option>A#</option><option>Bb</option><option>B</option></select></div>
+                <div class="clean-field"><label class="clean-label">BPM</label><input type="number" class="clean-input" id="f_cancion_bpm" placeholder="72" min="30" max="300" style="padding: 8px 12px; font-size: 12px;"/></div>
+                <div class="clean-field"><label class="clean-label">Capo <span class="opt">(0=sin)</span></label><input type="number" class="clean-input" id="f_capo" placeholder="0" min="0" max="12" style="padding: 8px 12px; font-size: 12px;"/></div>
+                <div class="clean-field"><label class="clean-label">Intro <span class="opt">(ej: Am F C)</span></label><input type="text" class="clean-input" id="f_intro" placeholder="G Em C D" style="padding: 8px 12px; font-size: 12px;"/></div>
+              </div>
+            </div>
+            <div id="s2MultitrackInfo" style="display:none;background:var(--blue-dim);border:1px solid rgba(77,126,255,0.2);border-radius:10px;padding:10px 14px;margin-bottom:12px;align-items:center;gap:10px"><svg style="width:16px;height:16px;fill:none;stroke:var(--blue);stroke-width:2;flex-shrink:0;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><div style="font-size:11px;font-weight:500;color:var(--t1)">Para <b>Multitracks</b> no aplican campos musicales. Solo llena la información básica.</div></div>
+            <div id="s2ProgramaInfo" style="display:none;background:var(--purple-dim);border:1px solid rgba(168,85,247,0.2);border-radius:10px;padding:10px 14px;margin-bottom:12px;align-items:center;gap:10px"><svg style="width:16px;height:16px;fill:none;stroke:var(--purple);stroke-width:2;flex-shrink:0;" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg><div style="font-size:11px;font-weight:500;color:var(--t1)">Para <b>Programas</b> solo necesitas el título, creador y descripción.</div></div>
+            <div class="wizard-nav" style="margin-top: 10px; padding-top: 12px; padding-bottom: 0;"><span class="wizard-progress">Paso 2 de 4</span><div class="wizard-nav-btns"><button class="btn btn-ghost" onclick="goWizStep(1)">← Atrás</button><button class="btn btn-acc" onclick="goWizStep(3)" id="s2NextBtn">Siguiente →</button></div></div>
+          </div>
+          <div class="step-panel" id="tw-step-3">
+            <div class="step-hdr"><div class="step-hdr-num">Paso 03 / 04</div><div class="step-hdr-title">Cifrado y Letra</div><div class="step-hdr-sub" id="s3Sub">Genera con Gemini o escribe manualmente · opcional</div></div>
+            <div id="s3AiPanel">
+              <div class="ai-panel"><div class="ai-panel-hdr"><span class="ai-badge">GEMINI IA</span><div><div class="ai-panel-title">Generar cifrado automáticamente</div><div class="ai-panel-sub">Gemini genera acordes y letra completa</div></div></div><div class="ai-row"><div class="clean-field"><label class="clean-label">Canción</label><input type="text" class="clean-input" id="ai_song" placeholder="Santo"/></div><div class="clean-field"><label class="clean-label">Artista</label><input type="text" class="clean-input" id="ai_artist" placeholder="Marcos Witt"/></div><div class="clean-field" style="max-width:120px"><label class="clean-label">Tono</label><select class="clean-select" id="ai_key"><option value="">Auto</option><option>C</option><option>C#</option><option>D</option><option>D#</option><option>E</option><option>F</option><option>F#</option><option>G</option><option>G#</option><option>A</option><option>A#</option><option>B</option></select></div><div style="padding-top:24px"><button class="btn btn-acc" id="aiGenBtn" onclick="genGemini('tut')"><span id="aiGenTxt">✦ Generar</span></button></div></div><div class="ai-status" id="aiStatus"></div></div>
+              <div class="clean-field"><label class="clean-label">Cifrado / Letra <span style="font-size:9px;color:var(--t3);font-weight:500;text-transform:none;letter-spacing:0">(generado o escrito a mano)</span></label><textarea class="clean-textarea" id="f_cancion_letra" placeholder="[Verso 1]&#10;[G]Grande y fuerte [D]es el Señor&#10;&#10;[Coro]&#10;[G]Grande y fuerte [D]es tu nombre" style="min-height:260px"></textarea><span class="clean-hint">Formato: [Acorde] antes de la sílaba · Secciones: [Verso 1] [Coro] en línea sola</span></div>
+            </div>
+            <div id="s3SkipPanel" style="display:none"><div style="background:var(--surface2);border:2px dashed var(--border);border-radius:16px;padding:40px;text-align:center"><div style="width:52px;height:52px;border-radius:14px;background:var(--border);display:flex;align-items:center;justify-content:center;margin:0 auto 14px"><svg style="width:22px;height:22px;fill:none;stroke:var(--t2);stroke-width:1.7" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><div style="font-size:14px;font-weight:700;color:var(--t1);margin-bottom:6px">Sin cifrado para este tipo</div><div style="font-size:12px;font-weight:500;color:var(--t2);max-width:320px;margin:0 auto">Los tutoriales de <strong id="s3SkipCat" style="color:var(--t0)">Multitracks</strong> no requieren cifrado ni letra. Puedes pasar directo a revisar y publicar.</div><button class="btn btn-acc" onclick="goWizStep(4)" style="margin-top:20px">Ir a revisar →</button></div></div>
+            <div class="wizard-nav" id="s3Nav"><span class="wizard-progress">Paso 3 de 4</span><div class="wizard-nav-btns"><button class="btn btn-ghost" onclick="goWizStep(2)">← Atrás</button><button class="btn btn-acc" onclick="goWizStep(4)">Revisar →</button></div></div>
+          </div>
+          <div class="step-panel" id="tw-step-4">
+            <div class="step-hdr"><div class="step-hdr-num">Paso 04 / 04</div><div class="step-hdr-title">Revisar y Guardar</div><div class="step-hdr-sub">Confirma los datos antes de publicar</div></div>
+            <div style="background:var(--surface2);border:1px solid var(--border);border-radius:15px;overflow:hidden;margin-bottom:22px"><div style="display:flex;gap:0"><img id="ytThumbFinal" src="" style="width:180px;height:101px;object-fit:cover;flex-shrink:0;display:none" onerror="this.style.display='none'"/><div style="padding:18px;flex:1"><div style="font-size:9px;font-weight:700;letter-spacing:2.5px;color:var(--acc);margin-bottom:6px;text-transform:uppercase" id="finalCat">GUITARRA</div><div style="font-size:17px;font-weight:800;color:var(--t0);margin-bottom:3px;letter-spacing:-.3px" id="finalTitulo">—</div><div style="font-size:12px;font-weight:600;color:var(--t2)" id="finalArtista">—</div><div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap" id="finalPills"></div></div></div></div>
+            <div id="tw-validate-msg" style="display:none;background:var(--red-dim);border:1px solid rgba(255,77,109,.2);border-radius:9px;padding:11px 15px;margin-bottom:16px;font-size:11px;font-weight:600;color:var(--red)"></div>
+            <div class="wizard-nav"><span class="wizard-progress">Paso 4 de 4</span><div class="wizard-nav-btns"><button class="btn btn-ghost" onclick="goWizStep(3)">← Atrás</button><button class="btn btn-ghost" onclick="clearTutForm()">Descartar</button><button class="btn btn-acc" id="saveTutBtn" onclick="saveTutorial()" style="padding:10px 22px"><span id="saveTutBtnTxt">🎬 Publicar Tutorial</span></button></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page" id="page-cancionero">
+      <div class="filter-row">
+        <span class="chip active" onclick="setCanFilter('Todos',this)">Todos</span>
+        <span class="chip" onclick="setCanFilter('Alabanza',this)">🙌 Alabanza</span>
+        <span class="chip" onclick="setCanFilter('Adoración',this)">🕊 Adoración</span>
+        <span class="chip" onclick="setCanFilter('Coro',this)">🎶 Coro</span>
+        <span class="chip" onclick="setCanFilter('Himno',this)">📖 Himno</span>
+      </div>
+      <div class="bulk-bar" id="bulkBar"><span class="bulk-count" id="bulkCount">0 seleccionadas</span><button class="btn btn-ghost btn-sm" onclick="selectAllCanciones()">☑ Todas</button><button class="btn btn-ghost btn-sm" onclick="deselectAllCanciones()">☐ Ninguna</button><button class="btn btn-danger btn-sm" onclick="confirmBulkDelete()">🗑 Eliminar</button></div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+        <button class="btn btn-ghost btn-sm" onclick="toggleSelectMode()" id="selectModeBtn">☐ Selección</button>
+        <button class="btn btn-teal btn-sm" onclick="startBatchCovers()">🖼 Portadas</button>
+        <button class="btn btn-ghost btn-sm" onclick="exportarCancioneroJSON()">⬇ Exportar JSON</button>
+        <button class="btn btn-danger btn-sm" onclick="confirmWipeCancionero()" style="margin-left:auto">⚠ Vaciar todo</button>
+      </div>
+      <div id="batchCoverProgress">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px"><span style="font-size:11px;font-weight:700;color:var(--teal)" id="batchCoverLabel">Buscando portadas...</span><span style="font-size:11px;font-weight:600;color:var(--t2)" id="batchCoverPct">0%</span></div>
+        <div class="progress-bar-wrap"><div class="progress-bar" id="batchCoverBar" style="width:0%"></div></div>
+        <div style="display:flex;gap:14px;margin-top:5px;font-size:10px;font-weight:700"><span style="color:var(--acc)">🖼 <span id="batchCoverOk">0</span></span><span style="color:var(--amber)">↻ <span id="batchCoverSkip">0</span></span><span style="color:var(--red)">✗ <span id="batchCoverErr">0</span></span></div>
+        <div class="progress-log" id="batchCoverLog" style="max-height:90px;margin-top:7px"></div>
+      </div>
+      <div class="tcard" id="canTableWrap"><div class="state-box"><div class="spinner" style="border-top-color:var(--teal)"></div></div></div>
+    </div>
+
+    <div class="page" id="page-nuevaCancion">
+      <input type="hidden" id="canEditId"/>
+      <div class="nc-tabs">
+        <div class="nc-tab active" onclick="switchTab('buscar',this)"><div class="nc-tab-icon">🌐</div><div><div style="font-size:12px;font-weight:700">Buscar Online</div><div style="font-size:9px;color:var(--t2);margin-top:1px;font-weight:500">Genius · letras.com</div></div></div>
+        <div class="nc-tab" onclick="switchTab('ia',this)"><div class="nc-tab-icon">✦</div><div><div style="font-size:12px;font-weight:700">Generar con IA</div><div style="font-size:9px;color:var(--t2);margin-top:1px;font-weight:500">Gemini · automático</div></div></div>
+        <div class="nc-tab" onclick="switchTab('manual',this)"><div class="nc-tab-icon">✏</div><div><div style="font-size:12px;font-weight:700">Manual</div><div style="font-size:9px;color:var(--t2);margin-top:1px;font-weight:500">Escribir a mano</div></div></div>
+      </div>
+
+      <div class="nc-panel active" id="ptab-buscar">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:22px;margin-bottom:20px">
+          <div style="font-size:18px;font-weight:800;margin-bottom:3px;color:var(--t0);letter-spacing:-.3px">Buscar Letra Online</div>
+          <div style="font-size:11px;font-weight:500;color:var(--t2);margin-bottom:18px">Genius API · scraping · Gemini cifra automáticamente</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:flex-end">
+            <div class="clean-field"><label class="clean-label">Canción <span class="req" style="color:var(--red)">*</span></label><input type="text" class="clean-input" id="srch_song" placeholder="Grande y Fuerte" onkeydown="if(event.key==='Enter')searchOnline()"/></div>
+            <div class="clean-field"><label class="clean-label">Artista</label><input type="text" class="clean-input" id="srch_artist" placeholder="Generación 12" onkeydown="if(event.key==='Enter')searchOnline()"/></div>
+            <button class="btn btn-teal" id="srchBtn" onclick="searchOnline()" style="height:46px;padding:0 20px"><svg style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><span id="srchTxt">Buscar</span></button>
+          </div>
+          <div class="ai-status ice" id="srchStatus" style="margin-top:10px"></div>
+        </div>
+        <div id="srchResultsWrap" style="display:none"><div style="font-size:9px;font-weight:700;letter-spacing:2.5px;color:var(--t2);margin-bottom:9px;text-transform:uppercase">RESULTADOS</div><div style="display:flex;flex-direction:column;gap:6px;max-height:270px;overflow-y:auto" id="srchResultsList"></div></div>
+        <div id="letraViewer" style="display:none;margin-top:18px;background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-lg);overflow:hidden">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:15px 18px;border-bottom:1px solid var(--border);background:var(--surface2)">
+            <div><div style="font-size:18px;font-weight:800;letter-spacing:-.3px;color:var(--t0)" id="lvSong"></div><div style="font-size:11px;font-weight:600;color:var(--t2);margin-top:2px" id="lvArtist"></div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:7px" id="lvMeta"></div></div>
+            <button class="btn btn-ghost btn-sm" onclick="closeLetraViewer()">✕</button>
+          </div>
+          <div style="padding:18px;font-size:11px;font-weight:500;line-height:2;white-space:pre-wrap;max-height:360px;overflow-y:auto;color:var(--t1)" id="lvBody"></div>
+          <div style="display:flex;gap:9px;padding:13px 18px;border-top:1px solid var(--border);background:var(--surface2);align-items:center;flex-wrap:wrap">
+            <span style="font-size:10px;font-weight:600;color:var(--t2);flex:1" id="lvNote"></span>
+            <button class="btn btn-ghost btn-sm" onclick="closeLetraViewer()">Seguir buscando</button>
+            <button class="btn btn-acc" onclick="guardarDesdeVisor()">💾 Guardar en cancionero</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="nc-panel" id="ptab-ia">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;margin-bottom:20px">
+          <div style="font-size:18px;font-weight:800;margin-bottom:3px;color:var(--t0);letter-spacing:-.3px">Generar con Gemini IA</div>
+          <div style="font-size:11px;font-weight:500;color:var(--t2);margin-bottom:20px">Gemini genera cifrado completo automáticamente</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr auto auto;gap:10px;align-items:flex-end">
+            <div class="clean-field"><label class="clean-label">Canción</label><input type="text" class="clean-input" id="can_ai_song" placeholder="Grande y Fuerte"/></div>
+            <div class="clean-field"><label class="clean-label">Artista</label><input type="text" class="clean-input" id="can_ai_artist" placeholder="Generación 12"/></div>
+            <div class="clean-field" style="max-width:115px"><label class="clean-label">Tono</label><select class="clean-select" id="can_ai_key"><option value="">Auto</option><option>C</option><option>C#</option><option>D</option><option>D#</option><option>E</option><option>F</option><option>F#</option><option>G</option><option>G#</option><option>A</option><option>A#</option><option>B</option></select></div>
+            <button class="btn btn-acc" id="canAiBtn" onclick="genGemini('can')" style="height:46px;padding:0 20px"><span id="canAiTxt">✦ Generar</span></button>
+          </div>
+          <div class="ai-status ice" id="canAiStatus" style="margin-top:10px"></div>
+        </div>
+        <div id="iaLetraViewer" style="display:none;background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-lg);overflow:hidden">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:15px 18px;border-bottom:1px solid var(--border);background:var(--surface2)">
+            <div><div style="font-size:18px;font-weight:800;letter-spacing:-.3px;color:var(--t0)" id="iaLvSong"></div><div style="font-size:11px;font-weight:600;color:var(--t2);margin-top:2px" id="iaLvArtist"></div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:7px" id="iaLvMeta"></div></div>
+            <button class="btn btn-ghost btn-sm" onclick="document.getElementById('iaLetraViewer').style.display='none'">✕</button>
+          </div>
+          <div style="padding:18px;font-size:11px;font-weight:500;line-height:2;white-space:pre-wrap;max-height:360px;overflow-y:auto;color:var(--t1)" id="iaLvBody"></div>
+          <div style="display:flex;gap:9px;padding:13px 18px;border-top:1px solid var(--border);background:var(--surface2);align-items:center">
+            <span style="font-size:10px;font-weight:600;color:var(--t2)">✦ Generado por Gemini — revisa antes de guardar</span>
+            <button class="btn btn-ghost btn-sm" onclick="document.getElementById('iaLetraViewer').style.display='none'">Descartar</button>
+            <button class="btn btn-acc" onclick="guardarDesdeIa()">💾 Guardar</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="nc-panel" id="ptab-manual"><div id="manualFormInner"></div></div>
+    </div>
+
+    <div class="page" id="page-importar">
+      <div class="import-panel">
+        <div style="display:flex;align-items:center;gap:13px;margin-bottom:16px">
+          <span style="background:var(--acc);color:#0d0d0d;font-size:9px;font-weight:800;letter-spacing:2px;padding:4px 10px;border-radius:6px;text-transform:uppercase">JSON</span>
+          <div><div style="font-size:18px;font-weight:800;color:var(--t0);letter-spacing:-.3px">Importación Masiva</div><div style="font-size:11px;font-weight:500;color:var(--t2);margin-top:2px">Upsert · crea si no existe · actualiza si ya existe</div></div>
+        </div>
+        <div style="display:flex;gap:7px;margin-bottom:12px;flex-wrap:wrap"><span class="badge-new">✦ NUEVA</span><span class="badge-upd">↻ ACTUALIZAR</span></div>
+        <div style="margin-bottom:12px;padding:13px;background:var(--surface2);border:1px solid var(--border);border-radius:8px"><pre style="font-size:10px;font-weight:500;color:var(--blue);line-height:1.7;overflow-x:auto">[{"titulo":"...","artista":"...","tono":"G","bpm":130,"capo":0,"intro":"G Em C D","letra":"..."}]</pre></div>
+        <div class="fg" style="margin-bottom:12px"><label class="lbl" style="display:flex;align-items:center;justify-content:space-between">Array JSON <span id="importCount" style="color:var(--teal)"></span></label><textarea id="importJson" style="min-height:150px" placeholder='[{"titulo":"...", "artista":"...", "tono":"Am", "bpm":135, "capo":0, "intro":"Am F C G", "letra":"..."}]' oninput="previewImport()"></textarea></div>
+        <div id="importPreview" style="display:none;margin-bottom:12px"><div style="font-size:9px;font-weight:700;letter-spacing:2px;color:var(--t2);margin-bottom:7px;text-transform:uppercase" id="importPreviewTitle">Preview</div><div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;max-height:200px;overflow-y:auto"><table id="importPreviewTable"></table></div></div>
+        <div style="display:flex;gap:9px;align-items:center;flex-wrap:wrap">
+          <button class="btn btn-acc" id="importBtn" onclick="startImport()" disabled><span id="importBtnTxt">↻ Importar en BD</span></button>
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('importJson').value='';previewImport()">Limpiar</button>
+          <span id="importStatusInline" style="font-size:10px;font-weight:600;color:var(--t2)"></span>
+        </div>
+        <div id="importProgress" style="display:none;margin-top:12px">
+          <div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:10px;font-weight:700;color:var(--teal)" id="progressLabel">Procesando...</span><span style="font-size:10px;font-weight:600;color:var(--t2)" id="progressPct">0%</span></div>
+          <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+          <div class="progress-log" id="progressLog"></div>
+        </div>
+      </div>
+      <div class="tcard" style="padding:20px">
+        <div style="font-size:9px;font-weight:700;letter-spacing:2.5px;color:var(--t2);margin-bottom:12px;text-transform:uppercase">O SUBE UN ARCHIVO .json / .csv</div>
+        <div style="display:flex;gap:9px;align-items:center">
+          <input type="file" id="importFile" accept=".json,.csv" style="display:none" onchange="loadImportFile(this)"/>
+          <button class="btn btn-ghost" onclick="document.getElementById('importFile').click()">📂 Archivo</button>
+          <span style="font-size:10px;font-weight:600;color:var(--t2)" id="importFileName">Ningún archivo</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="page" id="page-multitracks">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px">
+        <div>
+          <div style="font-size:22px;font-weight:800;color:var(--t0);letter-spacing:-.5px">🎚 Multitracks</div>
+          <div style="font-size:11px;font-weight:500;color:var(--t2);margin-top:2px">Pistas separadas por instrumento para la app</div>
+        </div>
+        <button class="btn btn-acc" onclick="openMtModal(null)">
+          <svg style="width:13px;height:13px;fill:none;stroke:#0d0d0d;stroke-width:2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg>
+          Nuevo Multitrack
+        </button>
+      </div>
+ 
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px">
+        <div class="panel" style="padding:16px">
+          <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;color:var(--t2);text-transform:uppercase;margin-bottom:4px">Total</div>
+          <div style="font-size:28px;font-weight:800;color:var(--t0)" id="mtTotal">—</div>
+        </div>
+        <div class="panel" style="padding:16px">
+          <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;color:var(--acc);text-transform:uppercase;margin-bottom:4px">Con pistas</div>
+          <div style="font-size:28px;font-weight:800;color:var(--acc)" id="mtConPistas">—</div>
+        </div>
+        <div class="panel" style="padding:16px">
+          <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;color:var(--teal);text-transform:uppercase;margin-bottom:4px">Ruta en servidor</div>
+          <div style="font-size:10px;font-weight:600;color:var(--teal);margin-top:2px;word-break:break-all">/public_html/audio/</div>
+        </div>
+      </div>
+ 
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:20px">
+        <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:var(--blue);text-transform:uppercase;margin-bottom:10px">📂 CÓMO SUBIR LOS ARCHIVOS WAV</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:12px">
+            <div style="font-size:11px;font-weight:800;color:var(--acc);margin-bottom:4px">① FTP / cPanel</div>
+            <div style="font-size:10px;font-weight:500;color:var(--t2);line-height:1.6">Entra a tu cPanel de Hostgator → <strong style="color:var(--t0)">Administrador de archivos</strong> → sube a:<br><code style="color:var(--acc);font-size:9px">/public_html/audio/nombre-cancion/</code></div>
+          </div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:12px">
+            <div style="font-size:11px;font-weight:800;color:var(--teal);margin-bottom:4px">② Nombre los archivos</div>
+            <div style="font-size:10px;font-weight:500;color:var(--t2);line-height:1.6">Usa nombres simples sin acentos:<br><code style="color:var(--teal);font-size:9px">guitarra.wav<br>bajo.wav<br>bateria.wav<br>master.wav</code></div>
+          </div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:12px">
+            <div style="font-size:11px;font-weight:800;color:var(--purple);margin-bottom:4px">③ URL pública</div>
+            <div style="font-size:10px;font-weight:500;color:var(--t2);line-height:1.6">La URL quedará:<br><code style="color:var(--purple);font-size:9px">recursomusical.com.mx/audio/eres/guitarra.wav</code></div>
+          </div>
+        </div>
+        <div style="margin-top:10px;display:flex;align-items:center;gap:8px">
+          <button class="btn btn-ghost btn-sm" onclick="window.open('https://cp.hostgator.com','_blank')">🌐 Abrir cPanel</button>
+          <span style="font-size:10px;font-weight:500;color:var(--t2)">o usa FileZilla / WinSCP con los datos FTP de tu cuenta</span>
+        </div>
+      </div>
+      <div class="tcard" id="mtTableWrap"><div class="state-box"><div class="spinner" style="border-top-color:var(--blue)"></div></div></div>
+    </div>
+ 
+    <div class="page" id="page-config">
+      <div style="max-width:480px">
+        <div style="font-size:22px;font-weight:800;margin-bottom:20px;color:var(--t0);letter-spacing:-.3px">Configuración</div>
+        <div class="tcard" style="margin-bottom:12px">
+          <div style="padding:14px 18px;border-bottom:1px solid var(--border)"><div style="font-size:12px;font-weight:800;letter-spacing:.5px;color:var(--teal)">Base de Datos</div></div>
+          <div style="padding:14px 18px;display:flex;flex-direction:column;gap:7px">
+            <div class="cfg-row"><span class="cfg-lbl">Servidor</span><span class="cfg-val" style="color:var(--acc)">Turso · Vercel</span></div>
+            <div class="cfg-row"><span class="cfg-lbl">Estado</span><span id="cfgDbStatus" class="cfg-val" style="color:var(--green)">● Conectado</span></div>
+          </div>
+        </div>
+        <div class="tcard" style="margin-bottom:12px">
+          <div style="padding:14px 18px;border-bottom:1px solid var(--border)"><div style="font-size:12px;font-weight:800;letter-spacing:.5px;color:var(--blue)">API Keys</div></div>
+          <div style="padding:15px 18px;display:flex;flex-direction:column;gap:12px">
+            <div class="fg"><label class="lbl">Gemini — Google AI Studio</label><input type="password" id="cfgGemini" placeholder="AIzaSy..."/></div>
+            <div class="fg"><label class="lbl">Genius — letras (opcional)</label><input type="password" id="cfgGenius" placeholder="Client Access Token"/></div>
+            <div class="fg"><label class="lbl">Google Drive API Key (para escanear carpetas)</label><input type="password" id="cfgDrive" placeholder="AIzaSy..."/></div>
+            <button class="btn btn-acc btn-sm" onclick="saveConfig()" style="align-self:flex-start">Guardar Keys</button>
+          </div>
+        </div>
+        <div class="tcard" style="margin-bottom:12px">
+          <div style="padding:14px 18px;border-bottom:1px solid var(--border)"><div style="font-size:12px;font-weight:800;letter-spacing:.5px;color:var(--red)">Contraseña</div></div>
+          <div style="padding:15px 18px;display:flex;flex-direction:column;gap:10px">
+            <div class="fg"><label class="lbl">Actual</label><input type="password" id="cfgPassCurrent" placeholder="••••••••"/></div>
+            <div class="fg"><label class="lbl">Nueva</label><input type="password" id="cfgPassNew" placeholder="Mínimo 8 caracteres"/></div>
+            <div class="fg"><label class="lbl">Confirmar</label><input type="password" id="cfgPassConfirm" placeholder="Repite la nueva"/></div>
+            <button class="btn btn-danger btn-sm" onclick="changePassword()" style="align-self:flex-start">🔒 Cambiar</button>
+          </div>
+        </div>
+        <div class="tcard" style="padding:14px;display:flex;flex-direction:column;gap:7px">
+          <button class="btn btn-teal btn-sm" onclick="loadAll()">↻ Recargar datos</button>
+          <button class="btn btn-ghost btn-sm" onclick="checkConnection()">⚡ Verificar conexión</button>
+          <button class="btn btn-ghost btn-sm" onclick="runSetup()">🔧 Migrar BD</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<div class="backdrop" id="mtModalBackdrop">
+  <div class="modal" style="max-width:760px">
+    <div class="modal-head">
+      <div style="width:32px;height:32px;border-radius:9px;background:var(--blue-dim);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg style="width:16px;height:16px;fill:none;stroke:var(--blue);stroke-width:1.8" viewBox="0 0 24 24"><line x1="8" y1="6" x2="8" y2="18"/><line x1="12" y1="3" x2="12" y2="21"/><line x1="16" y1="8" x2="16" y2="16"/></svg></div>
+      <div class="modal-head-title" id="mtModalTitle">Nuevo Multitrack</div>
+      <button class="close-btn" onclick="closeMtModal()"><svg style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2.5" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="modal-body" style="display:flex;flex-direction:column;gap:16px">
+      <input type="hidden" id="mt_id"/>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:16px">
+        <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:var(--t2);text-transform:uppercase;margin-bottom:12px">Información</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div class="clean-field" style="grid-column:1/-1"><label class="clean-label">Título <span style="color:var(--red)">*</span></label><input type="text" class="clean-input" id="mt_titulo" placeholder="Eres – Caminodevida Música"/></div>
+          <div class="clean-field"><label class="clean-label">Artista</label><input type="text" class="clean-input" id="mt_artista" placeholder="Caminodevida Música"/></div>
+          <div class="clean-field"><label class="clean-label">Tono</label><select class="clean-select" id="mt_tono"><option value="">—</option><option>C</option><option>C#</option><option>Db</option><option>D</option><option>D#</option><option>Eb</option><option>E</option><option>F</option><option>F#</option><option>Gb</option><option>G</option><option>G#</option><option>Ab</option><option>A</option><option>A#</option><option>Bb</option><option>B</option></select></div>
+          <div class="clean-field"><label class="clean-label">BPM</label><input type="number" class="clean-input" id="mt_bpm" placeholder="118" min="30" max="300"/></div>
+          <div class="clean-field"><label class="clean-label">Compás</label><select class="clean-select" id="mt_compas"><option>4/4</option><option>3/4</option><option>6/8</option><option>2/4</option></select></div>
+          <div class="clean-field"><label class="clean-label">Duración</label><input type="text" class="clean-input" id="mt_duracion" placeholder="5:09"/></div>
+          <div class="clean-field" style="grid-column:1/-1">
+            <label class="clean-label" style="display:flex;align-items:center;justify-content:space-between">URL Portada <span style="font-size:9px;font-weight:500;color:var(--t3);text-transform:none;letter-spacing:0">Sube la imagen al mismo servidor</span></label>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input type="text" class="clean-input" id="mt_imagen_url" placeholder="https://recursomusical.com.mx/audio/eres/portada.jpg" oninput="mtPreviewImg()" style="flex:1"/>
+              <div id="mtImgPreviewWrap" style="display:none;width:48px;height:48px;border-radius:8px;overflow:hidden;border:1px solid var(--border);flex-shrink:0"><img id="mtImgPreviewEl" src="" style="width:100%;height:100%;object-fit:cover"/></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:16px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <div><div style="font-size:10px;font-weight:700;letter-spacing:2px;color:var(--t2);text-transform:uppercase">Pistas WAV</div><div style="font-size:10px;font-weight:500;color:var(--t3);margin-top:2px">Cada pista es un archivo .wav en tu servidor o Google Drive</div></div>
+          <button class="btn btn-ghost btn-sm" onclick="addMtPistaRow('guitarra', '')">+ Pista manual</button>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:10px;margin-bottom:12px">
+          <div style="font-size:9px;font-weight:700;color:var(--t2);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px">Agregar pista rápido:</div>
+          <div style="display:flex;gap:5px;flex-wrap:wrap" id="mtQuickBtns"></div>
+        </div>
+        <div id="mtPistasList" style="display:flex;flex-direction:column;gap:7px"></div>
+        <div id="mtPistasEmpty" style="text-align:center;padding:20px;color:var(--t3);font-size:12px;font-weight:600">Sin pistas. Usa los botones de arriba para agregar.</div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeMtModal()">Cancelar</button>
+      <button class="btn btn-acc" id="mtSaveBtn" onclick="saveMt()"><span id="mtSaveTxt">💾 Guardar Multitrack</span></button>
+    </div>
+  </div>
+</div>
+
+<script src="admin.js"></script>
+</body>
+</html>

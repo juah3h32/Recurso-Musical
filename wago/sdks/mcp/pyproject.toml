@@ -1,0 +1,18 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "wago-mcp"
+version = "0.1.1"
+description = "Wago MCP server — manage WhatsApp connections from AI assistants"
+requires-python = ">=3.10"
+license = "MIT"
+keywords = ["wago", "whatsapp", "mcp", "model-context-protocol", "ai"]
+dependencies = ["fastmcp>=2.0.0", "httpx>=0.24.0"]
+
+[project.scripts]
+wago-mcp = "wago_mcp.server:main"
+
+[project.urls]
+Repository = "https://github.com/juah3h32/wago"

@@ -1,0 +1,8 @@
+---
+import DashboardLayout from '../../../layouts/DashboardLayout.astro';
+import ConnectionDetailPage from '../../../app/(dashboard)/connections/[id]/page.tsx';
+---
+
+<DashboardLayout title="Connection — WAGO">
+  <ConnectionDetailPage client:load />
+</DashboardLayout>

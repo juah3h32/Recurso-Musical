@@ -1,0 +1,3 @@
+#!/bin/sh
+echo "wago CLI not installed. Run: npm rebuild @wago/cli"
+exit 1

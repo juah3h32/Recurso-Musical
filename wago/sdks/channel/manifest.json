@@ -1,0 +1,20 @@
+{
+  "name": "wago",
+  "version": "0.1.0",
+  "description": "WhatsApp channel for Claude Code — chat with Claude via WhatsApp using Wago",
+  "channels": [
+    {
+      "name": "wago-channel",
+      "command": "node",
+      "args": ["./dist/index.js"]
+    }
+  ],
+  "skills": [
+    {
+      "name": "configure",
+      "description": "Configure your Wago API key for the WhatsApp channel",
+      "command": "node",
+      "args": ["./dist/index.js", "--configure"]
+    }
+  ]
+}
