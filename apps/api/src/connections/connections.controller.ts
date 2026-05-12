@@ -271,9 +271,9 @@ export class ConnectionsController {
       connection.sessionName,
     );
 
-    // Retry QR fetch up to 5 times (2s apart) — WAHA sessions need time
-    // to initialize before the QR endpoint becomes available.
-    for (let attempt = 0; attempt < 5; attempt++) {
+    // Retry QR fetch up to 10 times (2s apart) — covers worker boot + WAHA init.
+    // After a scan, WAHA transitions through SCAN_QR_CODE → WORKING.
+    for (let attempt = 0; attempt < 10; attempt++) {
       try {
         const qr = await this.wahaService.getQrCode(
           worker.internalIp,
@@ -282,17 +282,32 @@ export class ConnectionsController {
         );
         return qr;
       } catch (err) {
-        if (attempt < 4) {
-          this.logger.debug(
-            `QR fetch attempt ${attempt + 1}/5 failed, retrying in 2s...`,
-          );
+        // Between attempts, peek at session status in case the QR was already scanned
+        if (attempt >= 2 && attempt % 2 === 1) {
+          try {
+            const peek = await this.wahaService.getSession(
+              worker.internalIp, worker.apiKeyEnc, wahaName,
+            );
+            if (peek.status === 'WORKING') {
+              const updates: Record<string, any> = { status: 'working', updatedAt: new Date() };
+              try {
+                const me = await this.wahaService.getMe(worker.internalIp, worker.apiKeyEnc, wahaName);
+                const phone = me?.id?.replace('@c.us', '') || null;
+                if (phone) updates.phoneNumber = phone;
+              } catch { /* non-critical */ }
+              await this.db.update(wahaSessions).set(updates).where(eq(wahaSessions.id, id));
+              return { connected: true };
+            }
+          } catch { /* peek failed, keep retrying */ }
+        }
+        if (attempt < 9) {
           await new Promise((r) => setTimeout(r, 2000));
           continue;
         }
       }
     }
 
-    // All QR attempts exhausted — check session status
+    // All QR attempts exhausted — final session status check
     try {
       const session = await this.wahaService.getSession(
         worker.internalIp,
@@ -316,16 +331,10 @@ export class ConnectionsController {
         this.logger.log(
           `Session ${wahaName} is ${session.status}, resetting with full config...`,
         );
-        const apiUrl = this.configService.get<string>(
-          'API_URL',
-          'http://localhost:3001',
-        );
+        const apiUrl = this.configService.get<string>('API_URL', 'http://localhost:3001');
         const webhookUrl = `${apiUrl}/api/events/waha?workerId=${worker.id}&secret=${worker.ingressSecret}`;
         await this.wahaService.resetSession(
-          worker.internalIp,
-          worker.apiKeyEnc,
-          wahaName,
-          webhookUrl,
+          worker.internalIp, worker.apiKeyEnc, wahaName, webhookUrl,
         );
         await this.db
           .update(wahaSessions)
