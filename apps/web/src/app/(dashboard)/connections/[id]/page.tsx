@@ -576,11 +576,11 @@ export default function ConnectionDetailPage() {
           <div className="mt-6">
             {qrError && (
               <div className="rounded-lg border border-status-warning-border bg-status-warning-bg p-4 text-sm text-status-warning-text">
-                {connection.status === "pending" ||
-                qrError.includes("starting up") ||
-                qrError.includes("being provisioned")
-                  ? "Waiting for QR code to be generated..."
-                  : `Failed to load QR code: ${qrError}`}
+                {qrError.includes("starting up") || qrError.includes("being provisioned")
+                  ? "Worker is starting up, please wait..."
+                  : qrError.includes("No worker assigned")
+                    ? "No worker available. Try restarting the connection."
+                    : `Failed to load QR code: ${qrError}`}
               </div>
             )}
 
