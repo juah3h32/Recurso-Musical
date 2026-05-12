@@ -1,6 +1,5 @@
 {
-  "framework": "astro",
-  "installCommand": "pnpm install",
   "buildCommand": "pnpm build",
-  "outputDirectory": ".vercel/output"
+  "outputDirectory": "dist",
+  "installCommand": "pnpm install"
 }
