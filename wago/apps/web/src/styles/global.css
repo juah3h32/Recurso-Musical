@@ -1,0 +1,39 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg-primary: #0a0a0a;
+  --color-bg-secondary: #0f0f0f;
+  --color-bg-elevated: #161616;
+  --color-bg-hover: #1e1e1e;
+  --color-border-primary: rgba(255, 255, 255, 0.06);
+  --color-border-secondary: rgba(255, 255, 255, 0.1);
+  --color-text-primary: #fafafa;
+  --color-text-secondary: #a1a1a1;
+  --color-text-tertiary: #6b6b6b;
+  --color-text-inverse: #0a0a0a;
+  --color-wa-green: #00a884;
+  --color-wa-green-dark: #008f72;
+  --color-status-error-border: rgba(239, 68, 68, 0.15);
+  --color-status-error-bg: rgba(239, 68, 68, 0.05);
+  --color-status-error-text: #f87171;
+  --color-status-success-border: rgba(0, 168, 132, 0.15);
+  --color-status-success-bg: rgba(0, 168, 132, 0.05);
+  --color-status-success-text: #00a884;
+  --color-status-warning-border: rgba(234, 179, 8, 0.15);
+  --color-status-warning-bg: rgba(234, 179, 8, 0.05);
+  --color-status-warning-text: #facc15;
+}
+
+body {
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.4s ease-out;
+}

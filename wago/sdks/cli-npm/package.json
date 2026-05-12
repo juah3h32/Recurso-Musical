@@ -1,0 +1,19 @@
+{
+  "name": "@wago/cli",
+  "version": "0.15.0",
+  "description": "Wago CLI — manage WhatsApp connections, webhooks, and billing",
+  "bin": {
+    "wago": "bin/wago"
+  },
+  "scripts": {
+    "postinstall": "node install.js"
+  },
+  "files": ["bin", "install.js"],
+  "keywords": ["wago", "whatsapp", "cli", "webhook"],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/juah3h32/wago",
+    "directory": "sdks/cli-npm"
+  }
+}

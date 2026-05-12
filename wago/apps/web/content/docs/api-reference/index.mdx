@@ -1,0 +1,192 @@
+---
+title: API Overview
+description: "Wago REST API reference"
+---
+
+Base URL: `https://api.wago.com/api`
+
+## Authentication
+
+All endpoints (except health check) require authentication via the `Authorization` header:
+
+```
+Authorization: Bearer wh_your_api_token
+```
+
+Both API tokens (`wh_...`) and Supabase JWTs are accepted. See [API Tokens](/docs/concepts/api-tokens) for details.
+
+## Response format
+
+All responses are JSON. Successful responses return the resource directly. Errors return:
+
+```json
+{
+  "message": "Connection not found",
+  "error": "Not Found",
+  "statusCode": 404
+}
+```
+
+## Status codes
+
+| Code | Meaning |
+|------|---------|
+| 200 | Success |
+| 201 | Created (POST requests) |
+| 401 | Invalid or missing authentication |
+| 403 | Forbidden (resource belongs to another user) |
+| 404 | Resource not found |
+| 503 | Service unavailable (worker still booting) |
+
+## Rate limiting
+
+The API uses rate limiting to prevent abuse. If you exceed the rate limit, you'll receive a 429 response.
+
+## Connections
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | [`/connections`](/docs/api-reference/connections/list) | List all connections |
+| `POST` | [`/connections`](/docs/api-reference/connections/create) | Create a new connection |
+| `POST` | [`/connections/get-or-create`](/docs/api-reference/connections/get-or-create) | Get a scannable connection (reuses idle or creates new) |
+| `GET` | [`/connections/:id`](/docs/api-reference/connections/get) | Get connection details |
+| `PATCH` | `/connections/:id` | Update connection (e.g. rename) |
+| `DELETE` | [`/connections/:id`](/docs/api-reference/connections/delete) | Delete a connection |
+| `POST` | [`/connections/:id/restart`](/docs/api-reference/connections/restart) | Restart a connection |
+| `GET` | [`/connections/:id/qr`](/docs/api-reference/connections/qr) | Get QR code for linking |
+| `GET` | [`/connections/:id/chats`](/docs/api-reference/connections/chats) | Get recent chats |
+| `GET` | [`/connections/:id/me`](/docs/api-reference/connections/profile) | Get WhatsApp profile info |
+| `GET` | `/connections/:id/media/:filename` | Proxy a media file from the WAHA worker (streams the file) |
+
+## Messaging
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | [`/connections/:id/send`](/docs/api-reference/connections/send) | Send a text message |
+| `POST` | `/connections/:id/send-image` | Send an image (URL or base64) |
+| `POST` | `/connections/:id/send-document` | Send a document/file |
+| `POST` | `/connections/:id/send-video` | Send a video |
+| `POST` | `/connections/:id/send-audio` | Send audio/voice |
+| `POST` | `/connections/:id/send-location` | Send a location pin |
+| `POST` | `/connections/:id/send-contact` | Send a contact card |
+| `POST` | `/connections/:id/react` | React to a message with an emoji |
+
+The `send` endpoint accepts an optional `replyTo` field (message ID) to quote a specific message.
+
+All send endpoints include human-like presence by default (read receipt, typing indicator, random delay). Pass `skipPresence: true` in the request body to disable this when handling presence yourself.
+
+## Presence
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/connections/:id/mark-read` | Send read receipt (blue ticks) |
+| `POST` | `/connections/:id/typing` | Start typing indicator |
+| `POST` | `/connections/:id/typing/stop` | Stop typing indicator |
+
+All three accept `{ "chatId": "..." }` in the request body.
+
+## Webhooks
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | [`/connections/:cid/webhooks`](/docs/api-reference/webhooks/list) | List webhooks for a connection |
+| `POST` | [`/connections/:cid/webhooks`](/docs/api-reference/webhooks/create) | Create a webhook |
+| `PUT` | [`/webhooks/:id`](/docs/api-reference/webhooks/update) | Update a webhook |
+| `DELETE` | [`/webhooks/:id`](/docs/api-reference/webhooks/delete) | Delete a webhook |
+| `GET` | [`/webhooks/:id/logs`](/docs/api-reference/webhooks/logs) | Get delivery logs |
+| `POST` | [`/webhooks/:id/test`](/docs/api-reference/webhooks/test) | Send a test event |
+
+## API Tokens
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | [`/tokens`](/docs/api-reference/tokens/list) | List active tokens |
+| `POST` | [`/tokens`](/docs/api-reference/tokens/create) | Create a new token |
+| `DELETE` | [`/tokens/:id`](/docs/api-reference/tokens/revoke) | Revoke a token |
+
+## Real-time Events
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `WebSocket` | `/ws?token=wh_...` | Real-time event stream. Receives all WAHA events for your connections. Auto-scoped to the authenticated user. |
+
+Connect with any WebSocket client. Events arrive as JSON:
+
+```json
+{
+  "event": "message",
+  "connectionId": "c1a2b3c4-...",
+  "payload": {
+    "from": "1234567890@c.us",
+    "body": "Hello"
+  },
+  "timestamp": "2026-03-27T12:00:00.000Z"
+}
+```
+
+When a message includes media (image, video, document, audio), the payload contains `hasMedia: true` and a `media` object with a proxied URL you can fetch directly:
+
+```json
+{
+  "event": "message",
+  "connectionId": "c1a2b3c4-...",
+  "payload": {
+    "from": "1234567890@c.us",
+    "body": "Check this photo",
+    "hasMedia": true,
+    "media": {
+      "url": "https://api.wago.com/api/connections/c1a2b3c4-.../media/photo.jpeg",
+      "mimetype": "image/jpeg"
+    }
+  },
+  "timestamp": "2026-03-27T12:00:00.000Z"
+}
+```
+
+The `media.url` points to the [media proxy endpoint](#connections) (`/connections/:id/media/:filename`), which streams the file from the internal WAHA worker. The URL requires authentication (same `Authorization` header as other endpoints).
+
+See the [TypeScript SDK](/docs/sdk/typescript#real-time-events) or [Python SDK](/docs/sdk/python#real-time-events) for client libraries.
+
+## Billing
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/billing/status` | Subscription and slot status |
+| `GET` | `/billing/can-create` | Check if a new connection can be created |
+| `PUT` | `/billing/slots` | Set number of connection slots (charges immediately) |
+| `POST` | `/billing/checkout` | Create Stripe checkout session (first-time setup) |
+| `POST` | `/billing/portal` | Open Stripe customer portal |
+
+### Programmatic slot management
+
+After completing checkout once (to add a payment method), you can scale slots entirely from code:
+
+```bash
+# Set to 10 slots — charges prorated difference immediately
+curl -X PUT https://api.wago.com/api/billing/slots \
+  -H "Authorization: Bearer wh_..." \
+  -H "Content-Type: application/json" \
+  -d '{"quantity": 10}'
+```
+
+Response:
+
+```json
+{
+  "slots": 10,
+  "status": "upgraded",
+  "proratedAmount": 2.25,
+  "currency": "usd"
+}
+```
+
+- `status`: `"upgraded"`, `"downgraded"`, or `"unchanged"`
+- `proratedAmount`: the amount charged (positive) or credited (negative) immediately
+- Maximum 100 slots per account by default. Contact support for higher limits.
+- If payment fails, the request returns 400 and the subscription remains unchanged.
+
+## Other
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/` | Health check (no auth required) |

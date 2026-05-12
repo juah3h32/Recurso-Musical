@@ -1,0 +1,334 @@
+"""Wago MCP Server.
+
+Deployed at api.wago.com/mcp — users add the URL and authenticate via OAuth.
+"""
+
+import os
+
+import httpx
+from fastmcp import FastMCP, Context
+from fastmcp.server.auth.providers.supabase import SupabaseProvider
+from fastmcp.server.dependencies import get_access_token
+from mcp import McpError
+from mcp.types import ErrorData, INVALID_REQUEST
+
+API_BASE = os.environ.get("WAGO_API_URL", "https://api.wago.com")
+SUPABASE_URL = os.environ.get("SUPABASE_URL", "https://fvatjlbtyegsqjuwbxxx.supabase.co")
+
+auth = SupabaseProvider(
+    project_url=SUPABASE_URL,
+    base_url=os.environ.get("MCP_BASE_URL", "https://api.wago.com"),
+)
+
+mcp = FastMCP(
+    name="Wago",
+    instructions=(
+        "Wago MCP server for managing WhatsApp connections, "
+        "sending/receiving messages, and configuring webhooks. "
+        "Use list_connections to see active connections, "
+        "send_message to send WhatsApp messages, "
+        "and create_webhook to receive message notifications."
+    ),
+    auth=auth,
+)
+
+
+# ---------------------------------------------------------------------------
+# HTTP client helpers
+# ---------------------------------------------------------------------------
+
+
+async def _client_for_ctx(ctx: Context) -> httpx.AsyncClient:
+    """Get an HTTP client authenticated as the current user via OAuth.
+
+    Pulls the Supabase JWT from FastMCP's auth context (set by SupabaseProvider
+    after the OAuth handshake) and forwards it to the Wago API as a Bearer
+    token. The API's AuthGuard accepts Supabase JWTs natively.
+    """
+    access_token = get_access_token()
+    token = access_token.token if access_token else ""
+
+    if not token:
+        raise McpError(ErrorData(
+            code=INVALID_REQUEST,
+            message="Not authenticated. Complete OAuth login before calling tools.",
+        ))
+
+    return httpx.AsyncClient(
+        base_url=f"{API_BASE}/api",
+        headers={
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json",
+        },
+        timeout=120.0,
+    )
+
+
+async def _request(method: str, path: str, ctx: Context, json: dict | None = None) -> dict | list:
+    client = await _client_for_ctx(ctx)
+    r = await client.request(method, path, json=json)
+    data = r.json() if r.content else {}
+    if not r.is_success:
+        msg = data.get("message", r.reason_phrase) if isinstance(data, dict) else r.reason_phrase
+        return {"error": msg, "statusCode": r.status_code}
+    return data
+
+
+async def _get(path: str, ctx: Context) -> dict | list:
+    return await _request("GET", path, ctx)
+
+
+async def _post(path: str, ctx: Context, json: dict | None = None) -> dict:
+    return await _request("POST", path, ctx, json)
+
+
+async def _put(path: str, ctx: Context, json: dict) -> dict:
+    return await _request("PUT", path, ctx, json)
+
+
+async def _delete(path: str, ctx: Context) -> dict:
+    return await _request("DELETE", path, ctx)
+
+
+# ---------------------------------------------------------------------------
+# Connection tools
+# ---------------------------------------------------------------------------
+
+@mcp.tool
+async def list_connections(ctx: Context) -> list[dict] | dict:
+    """List all active WhatsApp connections."""
+    return await _get("/connections", ctx)
+
+
+@mcp.tool
+async def create_connection(ctx: Context) -> dict:
+    """Create a new WhatsApp connection. Returns connection ID and status.
+    After creation, use get_qr to get the QR code for linking."""
+    return await _post("/connections", ctx)
+
+
+@mcp.tool
+async def get_connection(connection_id: str, ctx: Context) -> dict:
+    """Get details of a specific connection."""
+    return await _get(f"/connections/{connection_id}", ctx)
+
+
+@mcp.tool
+async def delete_connection(connection_id: str, ctx: Context) -> dict:
+    """Delete a WhatsApp connection. This stops the session and unlinks the number."""
+    return await _delete(f"/connections/{connection_id}", ctx)
+
+
+@mcp.tool
+async def restart_connection(connection_id: str, ctx: Context) -> dict:
+    """Restart a WhatsApp connection. The user will need to scan QR again."""
+    return await _post(f"/connections/{connection_id}/restart", ctx)
+
+
+@mcp.tool
+async def get_qr(connection_id: str, ctx: Context) -> dict:
+    """Get the QR code for linking a WhatsApp account. Returns base64 PNG.
+    The user must scan this with WhatsApp > Settings > Linked Devices."""
+    return await _get(f"/connections/{connection_id}/qr", ctx)
+
+
+@mcp.tool
+async def get_chats(connection_id: str, ctx: Context) -> list[dict] | dict:
+    """Get recent WhatsApp chats for a connection. Returns chat IDs and names."""
+    return await _get(f"/connections/{connection_id}/chats", ctx)
+
+
+@mcp.tool
+async def get_profile(connection_id: str, ctx: Context) -> dict:
+    """Get the WhatsApp profile info (phone number, display name) for a connection."""
+    return await _get(f"/connections/{connection_id}/me", ctx)
+
+
+@mcp.tool
+async def send_message(connection_id: str, chat_id: str, text: str, ctx: Context) -> dict:
+    """Send a WhatsApp message.
+
+    Args:
+        connection_id: The connection to send from.
+        chat_id: Recipient in WhatsApp format (e.g. '1234567890@s.whatsapp.net'
+                 for individuals, or 'id@g.us' for groups).
+        text: Message text to send.
+    """
+    return await _post(
+        f"/connections/{connection_id}/send", ctx,
+        json={"chatId": chat_id, "text": text},
+    )
+
+
+@mcp.tool
+async def send_image(connection_id: str, chat_id: str, ctx: Context, url: str | None = None, data: str | None = None, mimetype: str | None = None, caption: str | None = None) -> dict:
+    """Send an image. Provide url (public URL) or data (base64) + mimetype."""
+    return await _post(f"/connections/{connection_id}/send-image", ctx, json={"chatId": chat_id, "url": url, "data": data, "mimetype": mimetype, "caption": caption})
+
+
+@mcp.tool
+async def send_document(connection_id: str, chat_id: str, ctx: Context, url: str | None = None, data: str | None = None, mimetype: str | None = None, filename: str | None = None, caption: str | None = None) -> dict:
+    """Send a document/file. Provide url or data (base64) + mimetype."""
+    return await _post(f"/connections/{connection_id}/send-document", ctx, json={"chatId": chat_id, "url": url, "data": data, "mimetype": mimetype, "filename": filename, "caption": caption})
+
+
+@mcp.tool
+async def send_video(connection_id: str, chat_id: str, ctx: Context, url: str | None = None, data: str | None = None, mimetype: str | None = None, caption: str | None = None) -> dict:
+    """Send a video. Provide url or data (base64) + mimetype."""
+    return await _post(f"/connections/{connection_id}/send-video", ctx, json={"chatId": chat_id, "url": url, "data": data, "mimetype": mimetype, "caption": caption})
+
+
+@mcp.tool
+async def send_audio(connection_id: str, chat_id: str, ctx: Context, url: str | None = None, data: str | None = None, mimetype: str | None = None) -> dict:
+    """Send audio/voice. Provide url or data (base64) + mimetype."""
+    return await _post(f"/connections/{connection_id}/send-audio", ctx, json={"chatId": chat_id, "url": url, "data": data, "mimetype": mimetype})
+
+
+@mcp.tool
+async def send_location(connection_id: str, chat_id: str, latitude: float, longitude: float, ctx: Context, name: str | None = None, address: str | None = None) -> dict:
+    """Share a location pin."""
+    return await _post(f"/connections/{connection_id}/send-location", ctx, json={"chatId": chat_id, "latitude": latitude, "longitude": longitude, "name": name, "address": address})
+
+
+@mcp.tool
+async def send_contact(connection_id: str, chat_id: str, contact_name: str, contact_phone: str, ctx: Context) -> dict:
+    """Share a contact card."""
+    return await _post(f"/connections/{connection_id}/send-contact", ctx, json={"chatId": chat_id, "contactName": contact_name, "contactPhone": contact_phone})
+
+
+@mcp.tool
+async def get_or_create_scannable_connection(ctx: Context) -> dict:
+    """Get a connection ready to scan a QR code.
+
+    Reuses an existing idle connection (scan_qr, pending, or failed) if
+    available, or creates a new one. Returns the connection ID, status,
+    and a base64-encoded QR code image if ready.
+
+    This is the recommended way to get a connection — one call instead of
+    listing, filtering, and deciding whether to restart or create.
+    """
+    return await _post("/connections/get-or-create", ctx)
+
+
+# ---------------------------------------------------------------------------
+# Webhook tools
+# ---------------------------------------------------------------------------
+
+@mcp.tool
+async def list_webhooks(connection_id: str, ctx: Context) -> list[dict] | dict:
+    """List webhook configurations for a connection."""
+    return await _get(f"/connections/{connection_id}/webhooks", ctx)
+
+
+@mcp.tool
+async def create_webhook(
+    connection_id: str,
+    url: str,
+    ctx: Context,
+    events: list[str] | None = None,
+) -> dict:
+    """Create a webhook to receive WhatsApp events at a URL.
+
+    Args:
+        connection_id: The connection to attach the webhook to.
+        url: The URL to receive webhook POST requests.
+        events: Event types to receive (default: all). Options: 'message',
+                'message.any', 'message.ack', 'session.status', 'presence.update'.
+    """
+    return await _post(
+        f"/connections/{connection_id}/webhooks", ctx,
+        json={"url": url, "events": events or ["*"]},
+    )
+
+
+@mcp.tool
+async def update_webhook(
+    webhook_id: str,
+    ctx: Context,
+    url: str | None = None,
+    events: list[str] | None = None,
+    active: bool | None = None,
+) -> dict:
+    """Update a webhook configuration.
+
+    Args:
+        webhook_id: The webhook to update.
+        url: New URL (optional).
+        events: New event filter (optional).
+        active: Enable or disable the webhook (optional).
+    """
+    body: dict = {}
+    if url is not None:
+        body["url"] = url
+    if events is not None:
+        body["events"] = events
+    if active is not None:
+        body["active"] = active
+    return await _put(f"/webhooks/{webhook_id}", ctx, json=body)
+
+
+@mcp.tool
+async def delete_webhook(webhook_id: str, ctx: Context) -> dict:
+    """Delete a webhook configuration."""
+    return await _delete(f"/webhooks/{webhook_id}", ctx)
+
+
+@mcp.tool
+async def get_webhook_logs(webhook_id: str, ctx: Context) -> list[dict] | dict:
+    """Get delivery logs for a webhook. Shows event type, status, and payload."""
+    return await _get(f"/webhooks/{webhook_id}/logs", ctx)
+
+
+@mcp.tool
+async def test_webhook(webhook_id: str, ctx: Context) -> dict:
+    """Send a test event to a webhook to verify it's working."""
+    return await _post(f"/webhooks/{webhook_id}/test", ctx)
+
+
+# ---------------------------------------------------------------------------
+# Token tools
+# ---------------------------------------------------------------------------
+
+@mcp.tool
+async def list_tokens(ctx: Context) -> list[dict] | dict:
+    """List active API tokens."""
+    return await _get("/tokens", ctx)
+
+
+@mcp.tool
+async def create_token(name: str, ctx: Context) -> dict:
+    """Create a new API token. The raw token is shown only once — save it immediately.
+
+    Args:
+        name: A descriptive name for the token (e.g. 'my-app', 'production').
+    """
+    return await _post("/tokens", ctx, json={"name": name})
+
+
+@mcp.tool
+async def revoke_token(token_id: str, ctx: Context) -> dict:
+    """Revoke an API token. It will immediately stop working."""
+    return await _delete(f"/tokens/{token_id}", ctx)
+
+
+# ---------------------------------------------------------------------------
+# Entry point
+# ---------------------------------------------------------------------------
+
+def main():
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Wago MCP Server")
+    parser.add_argument("--http", action="store_true", help="Run as HTTP server")
+    parser.add_argument("--port", type=int, default=8000, help="HTTP port (default: 8000)")
+    parser.add_argument("--host", default="0.0.0.0", help="HTTP host (default: 0.0.0.0)")
+    args = parser.parse_args()
+
+    if args.http:
+        mcp.run(transport="http", host=args.host, port=args.port)
+    else:
+        mcp.run(transport="stdio")
+
+
+if __name__ == "__main__":
+    main()

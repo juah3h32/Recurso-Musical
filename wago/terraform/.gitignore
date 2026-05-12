@@ -1,0 +1,11 @@
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.backup
+terraform.tfvars
+*.auto.tfvars
+crash.log
+tfplan
+.terraform.tfstate.lock.info
+wago_kubeconfig.yaml
+wago_kustomization_backup.yaml

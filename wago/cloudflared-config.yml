@@ -1,0 +1,7 @@
+tunnel: 3e24eb21-0567-487b-8880-8fa55f6da38a
+credentials-file: /Users/govideo/.cloudflared/3e24eb21-0567-487b-8880-8fa55f6da38a.json
+
+ingress:
+  - hostname: api.recursomusical.com.mx
+    service: http://localhost:3001
+  - service: http_status:404

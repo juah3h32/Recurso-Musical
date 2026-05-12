@@ -1,0 +1,253 @@
+---
+title: Python SDK
+description: "Official Wago SDK for Python"
+---
+
+## Installation
+
+```bash
+pip install wago
+```
+
+Requires Python 3.8+. Uses [httpx](https://www.python-httpx.org/) for HTTP requests.
+
+## Quick start
+
+```python
+from wago import Wago
+
+client = Wago(api_key="wh_...")
+
+# List connections
+connections = client.list_connections()
+
+# Send a message
+client.send_message(connection_id, chat_id="1234@s.whatsapp.net", text="Hello!")
+```
+
+## Configuration
+
+```python
+client = Wago(
+    api_key="wh_...",
+    base_url="https://api.wago.com",  # optional, defaults to production
+)
+```
+
+The client can be used as a context manager:
+
+```python
+with Wago(api_key="wh_...") as client:
+    connections = client.list_connections()
+# HTTP connection closed automatically
+```
+
+## API Reference
+
+### Connections
+
+```python
+# List all active connections
+connections = client.list_connections()
+
+# Create a new connection
+connection = client.create_connection()
+
+# Get a scannable connection (reuses idle or creates new)
+result = client.get_or_create_scannable_connection()
+# result["id"], result["status"], result["qr"] (base64 PNG)
+
+# Get connection details
+connection = client.get_connection(connection_id)
+
+# Delete a connection
+client.delete_connection(connection_id)
+
+# Restart a connection
+connection = client.restart_connection(connection_id)
+
+# Get QR code for linking
+qr = client.get_qr(connection_id)
+# qr["value"] = base64 PNG
+
+# Get recent chats
+chats = client.get_chats(connection_id)
+
+# Get WhatsApp profile info
+profile = client.get_profile(connection_id)
+
+# Send a text message
+result = client.send_message(connection_id, chat_id="1234@s.whatsapp.net", text="Hello!")
+
+# Send an image (by URL)
+client.send_image(connection_id, chat_id="1234@s.whatsapp.net", url="https://example.com/photo.jpg", caption="Check this out")
+
+# Send an image (by base64)
+client.send_image(connection_id, chat_id="1234@s.whatsapp.net", data="iVBORw0KGgo...", mimetype="image/png")
+
+# Send a document
+client.send_document(connection_id, chat_id="1234@s.whatsapp.net", url="https://example.com/report.pdf", filename="report.pdf")
+
+# Send a video
+client.send_video(connection_id, chat_id="1234@s.whatsapp.net", url="https://example.com/clip.mp4")
+
+# Send audio
+client.send_audio(connection_id, chat_id="1234@s.whatsapp.net", url="https://example.com/voice.ogg")
+
+# Send a location
+client.send_location(connection_id, chat_id="1234@s.whatsapp.net", latitude=37.7749, longitude=-122.4194, name="San Francisco")
+
+# Send a contact card
+client.send_contact(connection_id, chat_id="1234@s.whatsapp.net", contact_name="John Doe", contact_phone="1234567890")
+```
+
+All send methods include human-like presence (read receipt, typing, delay) by default. To disable:
+
+```python
+client.send_message(connection_id, chat_id="...", text="Hi", skip_presence=True)
+client.send_image(connection_id, chat_id="...", url="...", skip_presence=True)
+```
+
+### Replies and Reactions
+
+```python
+# Quote a specific message
+client.send_message(connection_id, chat_id="...", text="Thanks!", reply_to="msg_id_here")
+
+# React to a message with an emoji
+client.react(connection_id, chat_id="...", message_id="msg_id_here", reaction="👍")
+
+# Remove a reaction
+client.react(connection_id, chat_id="...", message_id="msg_id_here", reaction="")
+```
+
+### Presence
+
+```python
+# Manual presence control
+client.mark_read(connection_id, chat_id="...")       # send read receipt
+client.start_typing(connection_id, chat_id="...")    # show "typing..."
+client.stop_typing(connection_id, chat_id="...")     # clear typing indicator
+```
+
+### Webhooks
+
+```python
+# List webhooks for a connection
+webhooks = client.list_webhooks(connection_id)
+
+# Create a webhook
+webhook = client.create_webhook(
+    connection_id,
+    url="https://example.com/hook",
+    events=["message", "message.any"],  # optional, defaults to ["*"]
+)
+
+# Update a webhook
+updated = client.update_webhook(webhook_id, url="https://example.com/new", active=False)
+
+# Delete a webhook
+client.delete_webhook(webhook_id)
+
+# Get delivery logs
+logs = client.get_webhook_logs(webhook_id)
+
+# Send a test event
+result = client.test_webhook(webhook_id)
+```
+
+### Real-time Events
+
+Listen for WhatsApp events in real-time via WebSocket:
+
+```bash
+pip install wago[realtime]  # includes websocket-client
+```
+
+```python
+def on_event(event):
+    print(event["event"])         # "message"
+    print(event["connectionId"])  # connection UUID
+    print(event["payload"])       # WAHA event payload
+
+stream = client.listen(on_event=on_event)
+stream.run_forever()  # blocks, auto-reconnects
+
+# To stop from another thread:
+# stream.close()
+```
+
+#### Handling media messages
+
+When a message includes media (image, video, document, audio), the payload contains `hasMedia: True` and a `media` dict with a proxied URL:
+
+```python
+import httpx
+
+def on_event(event):
+    if event["event"] != "message":
+        return
+
+    payload = event["payload"]
+    print(payload.get("body"))  # caption or text
+
+    if payload.get("hasMedia"):
+        media = payload["media"]
+        print(media["mimetype"])  # e.g. "image/jpeg"
+        print(media["url"])       # proxied URL
+
+        # Download the media file (requires auth)
+        resp = httpx.get(
+            media["url"],
+            headers={"Authorization": f"Bearer {api_key}"},
+        )
+        resp.raise_for_status()
+        with open("downloaded_file", "wb") as f:
+            f.write(resp.content)
+```
+
+The `media["url"]` points to the Wago media proxy (`/connections/:id/media/:filename`), which streams the file from the internal WAHA worker. It requires the same `Authorization` header as other API calls.
+
+### API Tokens
+
+```python
+# List active tokens
+tokens = client.list_tokens()
+
+# Create a new token (raw token shown once)
+token = client.create_token("my-token")
+print(token["token"])  # "wh_a1b2c3..."
+
+# Revoke a token
+client.revoke_token(token_id)
+```
+
+### Billing
+
+```python
+# Get billing status (subscription, slots)
+status = client.get_billing_status()
+print(status["slots"])  # {"paid": 5, "used": 3, "available": 2}
+
+# Programmatically scale connection slots (charges immediately)
+result = client.set_slots(10)
+print(result)
+# {"slots": 10, "status": "upgraded", "proratedAmount": 1.25, "currency": "usd"}
+```
+
+`set_slots` charges (or credits) the prorated difference immediately against the card on file. Requires an active subscription — call `checkout` first to set up billing. Maximum 100 slots per account by default; contact support for higher limits.
+
+## Error handling
+
+The SDK raises `WagoError` for non-2xx responses:
+
+```python
+from wago import Wago, WagoError
+
+try:
+    client.get_connection("nonexistent-id")
+except WagoError as e:
+    print(e)              # "Connection not found"
+    print(e.status_code)  # 404
+    print(e.body)         # full error response dict
+```

@@ -1,0 +1,18 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "wago"
+version = "0.8.0"
+description = "Official Wago SDK for Python"
+requires-python = ">=3.8"
+license = "MIT"
+keywords = ["wago", "whatsapp", "api", "webhook", "sdk"]
+dependencies = ["httpx>=0.24.0"]
+
+[project.optional-dependencies]
+realtime = ["websocket-client>=1.6.0"]
+
+[project.urls]
+Repository = "https://github.com/juah3h32/wago"

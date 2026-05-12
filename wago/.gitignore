@@ -1,0 +1,17 @@
+node_modules/
+dist/
+.next/
+.turbo/
+*.tsbuildinfo
+.env
+.env.local
+.env.*.local
+coverage/
+.DS_Store
+*.log
+.vercel
+supabase/
+TODO.md
+.env.secrets
+.env.docker
+cli/wago

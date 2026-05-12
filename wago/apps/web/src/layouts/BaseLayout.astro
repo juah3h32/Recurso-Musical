@@ -1,0 +1,25 @@
+---
+const { title } = Astro.props;
+---
+
+<html lang="es" class="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <script is:inline>
+      window.__SUPABASE_URL__ = "https://begktwirkeoswrsxoxph.supabase.co";
+      window.__SUPABASE_KEY__ = "sb_publishable_f5r9KNRT6SgSORDPBv6elA_0HWg8Mvy";
+      window.__API_URL__ = "http://localhost:3001";
+    </script>
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>
+
+<style is:global>
+  @import '../styles/global.css';
+</style>
