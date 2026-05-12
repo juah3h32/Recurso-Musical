@@ -116,14 +116,14 @@ export default function ConnectionsPage() {
     }
 
     pollQr();
-    const interval = setInterval(pollQr, 3000);
+    const interval = setInterval(pollQr, 2000);
     return () => { cancelled = true; clearInterval(interval); };
   }, [newConnId, mutate]);
 
-  // Poll connection status when we have a QR
+  // Poll connection status when we have a QR — checks DB for faster close
   useEffect(() => {
     if (!newConnId || !qr) return;
-    const interval = setInterval(async () => {
+    const check = async () => {
       try {
         const conn = await apiFetch(`/api/connections/${newConnId}`);
         if (conn.status === "connected" || conn.status === "working") {
@@ -134,8 +134,22 @@ export default function ConnectionsPage() {
           mutate();
         }
       } catch {}
-    }, 3000);
+    };
+    const interval = setInterval(check, 2000);
     return () => clearInterval(interval);
+  }, [newConnId, qr, mutate]);
+
+  // Auto-close modal after 3 minutes (failsafe)
+  useEffect(() => {
+    if (!newConnId || !qr) return;
+    const timer = setTimeout(() => {
+      setQr(null);
+      setShowModal(false);
+      setNewConnId(null);
+      setNewName("");
+      mutate();
+    }, 180000);
+    return () => clearTimeout(timer);
   }, [newConnId, qr, mutate]);
 
   const handleCreate = useCallback(async (e: React.FormEvent) => {
