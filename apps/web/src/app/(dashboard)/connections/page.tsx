@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { apiFetch } from "@/lib/api";
 import { useApiData } from "@/lib/cache";
+import { useToast } from "@/components/toast";
 import { StatusBadge } from "@/components/status-badge";
 import { ConnectionListSkeleton } from "@/components/skeletons";
 
@@ -58,6 +59,27 @@ export default function ConnectionsPage() {
   const [newConnId, setNewConnId] = useState<string | null>(null);
   const [qr, setQr] = useState<QrData | null>(null);
   const [qrLoading, setQrLoading] = useState(false);
+  const { toast } = useToast();
+  const [deleteTarget, setDeleteTarget] = useState<Connection | null>(null);
+  const [deleting, setDeleting] = useState(false);
+
+  const handleDelete = useCallback(async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    // Optimistic: remove immediately
+    const prevList = list;
+    mutate((prev) => (prev ? prev.filter((c) => c.id !== deleteTarget.id) : prev));
+    setDeleteTarget(null);
+    try {
+      await apiFetch(`/api/connections/${deleteTarget.id}`, { method: "DELETE" });
+      toast("Conexión eliminada", "success");
+    } catch {
+      mutate(prevList);
+      toast("Error al eliminar", "error");
+    } finally {
+      setDeleting(false);
+    }
+  }, [deleteTarget, list, mutate, toast]);
 
   // Poll QR code when connection is created
   useEffect(() => {
@@ -184,39 +206,56 @@ export default function ConnectionsPage() {
       {!loading && !error && list.length > 0 && (
         <div className="mt-6 space-y-2">
           {list.map((conn) => (
-            <a
-              key={conn.id}
-              href={`/dashboard/connections/${conn.id}`}
-              className="group relative flex items-center justify-between rounded-xl border border-border-primary bg-bg-secondary px-5 py-4 transition-all duration-150 hover:border-border-secondary hover:bg-bg-elevated"
-            >
-              <div className="min-w-0 flex-1">
-                <p className="truncate font-medium text-text-primary">
-                  {conn.name || "Conexión sin nombre"}
-                </p>
-                <p className="mt-0.5 text-xs text-text-tertiary">
-                  {conn.phoneNumber
-                    ? `+${conn.phoneNumber}`
-                    : phoneNumbers[conn.id]
-                      ? `+${phoneNumbers[conn.id]}`
-                      : conn.status === "connected"
-                        ? "Cargando..."
-                        : "Sin número vinculado"}
-                </p>
-              </div>
-              <div className="flex shrink-0 items-center gap-3 ml-3">
+            <div key={conn.id} className="group relative flex items-center justify-between rounded-xl border border-border-primary bg-bg-secondary px-5 py-4 transition-all duration-150 hover:border-border-secondary hover:bg-bg-elevated">
+              <a href={`/dashboard/connections/${conn.id}`} className="min-w-0 flex-1 flex items-center gap-3">
+                <div className="min-w-0 flex-1">
+                  <p className="truncate font-medium text-text-primary">
+                    {conn.name || "Conexión sin nombre"}
+                  </p>
+                  <p className="mt-0.5 text-xs text-text-tertiary">
+                    {conn.phoneNumber
+                      ? `+${conn.phoneNumber}`
+                      : phoneNumbers[conn.id]
+                        ? `+${phoneNumbers[conn.id]}`
+                        : conn.status === "connected"
+                          ? "Cargando..."
+                          : "Sin número vinculado"}
+                  </p>
+                </div>
                 <StatusBadge status={conn.status} />
-                <svg
-                  className="h-4 w-4 text-text-tertiary transition-colors duration-150 group-hover:text-text-secondary"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                >
+                <svg className="h-4 w-4 text-text-tertiary transition-colors duration-150 group-hover:text-text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                 </svg>
-              </div>
-            </a>
+              </a>
+              <button
+                onClick={(e) => { e.preventDefault(); setDeleteTarget(conn); }}
+                className="ml-3 shrink-0 rounded-lg p-2 text-text-tertiary opacity-0 group-hover:opacity-100 hover:bg-red-500/10 hover:text-red-400 transition-all"
+                title="Eliminar conexión"
+              >
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+              </button>
+            </div>
           ))}
+        </div>
+      )}
+
+      {/* Delete confirmation modal */}
+      {deleteTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={() => !deleting && setDeleteTarget(null)}>
+          <div className="w-full max-w-sm rounded-2xl border border-border-secondary bg-bg-secondary p-8 shadow-2xl text-center" onClick={(e) => e.stopPropagation()}>
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-red-500/10">
+              <svg className="h-7 w-7 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+            </div>
+            <h3 className="mt-4 text-lg font-bold text-text-primary">Eliminar conexión</h3>
+            <p className="mt-2 text-sm text-text-secondary">¿Estás seguro? Esta acción no se puede deshacer.</p>
+            <p className="mt-1 text-xs text-text-tertiary truncate">{deleteTarget.name || "Conexión sin nombre"}</p>
+            <div className="mt-6 flex gap-3">
+              <button onClick={() => setDeleteTarget(null)} disabled={deleting} className="flex-1 rounded-xl border border-border-secondary px-4 py-2.5 text-sm font-medium text-text-secondary hover:bg-bg-hover transition-all disabled:opacity-50">Cancelar</button>
+              <button onClick={handleDelete} disabled={deleting} className="flex-1 rounded-xl bg-red-500 px-4 py-2.5 text-sm font-semibold text-white hover:bg-red-600 transition-all disabled:opacity-50">
+                {deleting ? "Eliminando..." : "Eliminar"}
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
