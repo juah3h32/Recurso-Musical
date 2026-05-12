@@ -1,5 +1,5 @@
 {
   "framework": "astro",
-  "installCommand": "cd ../.. && pnpm install --no-frozen-lockfile",
-  "buildCommand": "cd ../.. && pnpm --filter @wago/web build"
+  "installCommand": "pnpm install",
+  "buildCommand": "pnpm build"
 }
