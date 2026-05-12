@@ -232,6 +232,19 @@ export class ConnectionsController {
         );
         return qr;
       } catch (err) {
+        // If WAHA says the session is already WORKING, return connected immediately
+        const errMsg = err instanceof Error ? err.message : String(err);
+        if (errMsg.includes('"status":"WORKING"') || errMsg.includes('already connected')) {
+          const updates: Record<string, any> = { status: 'working', updatedAt: new Date() };
+          try {
+            const me = await this.wahaService.getMe(worker.internalIp, worker.apiKeyEnc, wahaName);
+            const phone = me?.id?.replace('@c.us', '') || null;
+            if (phone) updates.phoneNumber = phone;
+          } catch { /* non-critical */ }
+          await this.db.update(wahaSessions).set(updates).where(eq(wahaSessions.id, id));
+          return { connected: true };
+        }
+
         // Between attempts, peek at session status in case the QR was already scanned
         if (attempt >= 2 && attempt % 2 === 1) {
           try {
