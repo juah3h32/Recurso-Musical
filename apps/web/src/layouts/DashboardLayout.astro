@@ -1,6 +1,7 @@
 ---
 import BaseLayout from './BaseLayout.astro';
 import DashboardProviders from '../components/DashboardProviders';
+import MessageAlerts from '../components/MessageAlerts';
 const { title } = Astro.props;
 ---
 
@@ -32,5 +33,6 @@ const { title } = Astro.props;
         <slot />
       </main>
     </div>
+    <MessageAlerts client:load />
   </DashboardProviders>
 </BaseLayout>
