@@ -31,35 +31,50 @@ export class WorkersService implements OnModuleInit {
 
     const wahaHost = this.configService.get<string>('WAHA_HOST', 'waha');
     const apiKey = this.configService.get<string>('WAHA_API_KEY', 'devkey');
-    const podName = 'local-waha';
+    const podName = 'local-waha-worker';
 
-    const [existing] = await this.db
-      .select()
-      .from(wahaWorkers)
-      .where(eq(wahaWorkers.podName, podName));
+    // Retry registration a few times in case DB is starting up
+    for (let i = 0; i < 5; i++) {
+      try {
+        const [existing] = await this.db
+          .select()
+          .from(wahaWorkers)
+          .where(eq(wahaWorkers.podName, podName));
 
-    if (existing) {
-      // Reset currentSessions on restart (sessions don't survive a container restart)
-      await this.db
-        .update(wahaWorkers)
-        .set({ internalIp: wahaHost, apiKeyEnc: apiKey, status: 'active', currentSessions: 0, updatedAt: new Date() })
-        .where(eq(wahaWorkers.podName, podName));
-      this.logger.log(`Local worker updated: ${wahaHost}`);
-    } else {
-      await this.db.insert(wahaWorkers).values({
-        id: randomUUID(),
-        podName,
-        internalIp: wahaHost,
-        apiKeyEnc: apiKey,
-        ingressSecret: randomUUID(),
-        status: 'active',
-        maxSessions: this.maxSessionsPerWorker,
-        currentSessions: 0,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      });
-      this.logger.log(`Local worker registered: ${wahaHost}`);
+        if (existing) {
+          await this.db
+            .update(wahaWorkers)
+            .set({
+              internalIp: wahaHost,
+              apiKeyEnc: apiKey,
+              status: 'active',
+              currentSessions: 0,
+              updatedAt: new Date(),
+            })
+            .where(eq(wahaWorkers.podName, podName));
+          this.logger.log(`Local worker updated: ${wahaHost}`);
+        } else {
+          await this.db.insert(wahaWorkers).values({
+            id: randomUUID(),
+            podName,
+            internalIp: wahaHost,
+            apiKeyEnc: apiKey,
+            ingressSecret: randomUUID(),
+            status: 'active',
+            maxSessions: this.maxSessionsPerWorker,
+            currentSessions: 0,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          });
+          this.logger.log(`Local worker registered: ${wahaHost}`);
+        }
+        return; // Success
+      } catch (err) {
+        this.logger.warn(`Failed to register local worker (attempt ${i + 1}/5): ${err instanceof Error ? err.message : String(err)}`);
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      }
     }
+    this.logger.error('Could not register local worker after 5 attempts');
   }
 
   /**
@@ -71,6 +86,8 @@ export class WorkersService implements OnModuleInit {
     apiKey: string;
     ingressSecret: string;
   }> {
+    this.logger.log('Searching for available worker...');
+
     // Query active workers with remaining capacity, least-loaded first
     const available = await this.db
       .select()
@@ -97,15 +114,39 @@ export class WorkersService implements OnModuleInit {
       };
     }
 
+    this.logger.log('No available workers with capacity found.');
+
+    // In local mode, we might just need to reuse the local worker even if it's "full"
+    // or if it hasn't been registered yet.
+    if (this.configService.get('ORCHESTRATOR') === 'local') {
+      const podName = 'local-waha-worker';
+      const [localWorker] = await this.db
+        .select()
+        .from(wahaWorkers)
+        .where(eq(wahaWorkers.podName, podName))
+        .limit(1);
+
+      if (localWorker) {
+        this.logger.log(`Local mode: Reusing local worker ${localWorker.id} despite capacity`);
+        return {
+          id: localWorker.id,
+          internalIp: localWorker.internalIp,
+          apiKey: localWorker.apiKeyEnc,
+          ingressSecret: localWorker.ingressSecret,
+        };
+      }
+    }
+
     // Prevent concurrent provisioning — if already provisioning, throw
     // so the caller can return the connection as 'pending'
     if (this.provisioningInProgress) {
+      this.logger.warn('Worker provisioning already in progress, throwing error');
       throw new Error('Worker provisioning already in progress');
     }
 
     // No available workers — provision a new one
     this.provisioningInProgress = true;
-    this.logger.log('No available workers found, provisioning new worker...');
+    this.logger.log('Provisioning new worker via orchestrator...');
 
     try {
       const result = await this.orchestrator.provisionWorker();
@@ -272,10 +313,21 @@ export class WorkersService implements OnModuleInit {
       .where(eq(wahaSessions.id, sessionId))
       .limit(1);
 
-    if (rows.length === 0 || !rows[0].workerId) return null;
+    if (rows.length === 0) {
+      this.logger.warn(`getWorkerForSession: Session ${sessionId} not found`);
+      return null;
+    }
+
+    if (!rows[0].workerId) {
+      this.logger.warn(`getWorkerForSession: Session ${sessionId} has no workerId assigned`);
+      return null;
+    }
 
     const worker = await this.getWorker(rows[0].workerId);
-    if (!worker) return null;
+    if (!worker) {
+      this.logger.warn(`getWorkerForSession: Worker ${rows[0].workerId} not found in DB`);
+      return null;
+    }
 
     return {
       id: worker.id,
@@ -284,7 +336,6 @@ export class WorkersService implements OnModuleInit {
       ingressSecret: worker.ingressSecret,
     };
   }
-
   /**
    * List all active workers.
    */

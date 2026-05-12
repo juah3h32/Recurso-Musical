@@ -15,8 +15,11 @@ async function bootstrap() {
     origin: [
       frontendUrl,
       "http://localhost:3000",
-      "https://whatsapp.recursomusical.com.mx",
       "https://recursomusical.com.mx",
+      "https://www.recursomusical.com.mx",
+      "https://api.recursomusical.com.mx",
+      "https://whatsapp.recursomusical.com.mx",
+      /\.recursomusical\.com\.mx$/,
       /\.vercel\.app$/,
     ],
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],

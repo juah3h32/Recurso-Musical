@@ -15,7 +15,7 @@ export class LocalOrchestrator implements ContainerOrchestrator {
   async provisionWorker(): Promise<ProvisionResult> {
     const apiKey = this.configService.get<string>('WAHA_API_KEY', 'devkey');
     return {
-      podName: 'local-waha',
+      podName: 'local-waha-worker',
       internalIp: this.wahaHost,
       apiKey,
     };

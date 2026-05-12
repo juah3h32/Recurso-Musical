@@ -41,7 +41,7 @@ export default function LoginForm() {
     <div className="w-full max-w-md">
       <div className="mb-8 text-center">
         <a href="/" className="inline-flex items-center gap-2 text-2xl font-bold tracking-tight text-wa-green">
-          <img src="/logo.svg" alt="" className="h-8 w-8" />
+          <img src="/whatsapp/logo.svg" alt="" className="h-8 w-8" />
           WAGO
         </a>
         <p className="mt-2 text-sm text-text-tertiary">Sign in to your account</p>

@@ -67,6 +67,11 @@ export class WahaService {
   }
 
   private buildUrl(workerUrl: string, path: string): string {
+    // If workerUrl already has a protocol, don't prepend 'http://' and don't append port if it's already there
+    if (workerUrl.startsWith('http://') || workerUrl.startsWith('https://')) {
+      const baseUrl = workerUrl.endsWith('/') ? workerUrl.slice(0, -1) : workerUrl;
+      return `${baseUrl}${path}`;
+    }
     return `http://${workerUrl}:${this.wahaPort}${path}`;
   }
 
@@ -98,6 +103,7 @@ export class WahaService {
       }
 
       const response = await fetch(url, options);
+      this.logger.log(`WAHA API: ${method} ${url} - Status: ${response.status}`);
 
       if (!response.ok) {
         const responseBody = await response.text();
@@ -270,6 +276,7 @@ export class WahaService {
         headers,
         signal: controller.signal,
       });
+      this.logger.log(`WAHA API (QR): GET ${url} - Status: ${response.status}`);
 
       if (!response.ok) {
         const body = await response.text();

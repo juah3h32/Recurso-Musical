@@ -156,8 +156,11 @@ export class ConnectionsController {
     // Do worker setup + WAHA session creation in background.
     // The frontend polls QR immediately; health check handles failures.
     this.setupWorkerAndSession(created.id, sessionName).catch((error) => {
-      this.logger.warn(
-        `WAHA setup deferred for ${created.id}: ${error instanceof Error ? error.message : String(error)}`,
+      const errMsg = error instanceof Error ? error.message : String(error);
+      const errStack = error instanceof Error ? error.stack : '';
+      this.logger.error(
+        `WAHA setup failed for connection ${created.id}: ${errMsg}`,
+        errStack,
       );
     });
 
@@ -165,19 +168,22 @@ export class ConnectionsController {
   }
 
   private async setupWorkerAndSession(connectionId: string, sessionName: string) {
+    this.logger.log(`Starting background setup for connection ${connectionId} (${sessionName})`);
     const worker = await Promise.race([
       this.workersService.findOrProvisionWorker(),
       new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error('Worker provisioning timeout')), 15000),
+        setTimeout(() => reject(new Error('Worker provisioning timeout')), 30000),
       ),
     ]);
 
+    this.logger.log(`Assigning connection ${connectionId} to worker ${worker.id}`);
     await this.workersService.assignSession(worker.id, connectionId);
 
     const apiUrl = this.configService.get<string>('API_URL', 'http://localhost:3001');
     const webhookUrl = `${apiUrl}/api/events/waha?workerId=${worker.id}&secret=${worker.ingressSecret}`;
     const wahaName = this.wahaService.resolveSessionName(sessionName);
 
+    this.logger.log(`Resetting WAHA session ${wahaName} on worker ${worker.internalIp}`);
     await this.wahaService.resetSession(
       worker.internalIp,
       worker.apiKey,
@@ -185,6 +191,7 @@ export class ConnectionsController {
       webhookUrl,
     );
 
+    this.logger.log(`Setup complete for connection ${connectionId}, status: scan_qr`);
     await this.db
       .update(wahaSessions)
       .set({ status: 'scan_qr', updatedAt: new Date() })
@@ -324,7 +331,7 @@ export class ConnectionsController {
           .set({ status: 'scan_qr', updatedAt: new Date() })
           .where(eq(wahaSessions.id, id));
       }
-    } catch {
+    } catch (err) {
       // Session check also failed — worker is genuinely unavailable
     }
     throw new ServiceUnavailableException(
