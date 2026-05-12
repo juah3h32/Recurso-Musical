@@ -179,41 +179,41 @@ export default function ConnectionsPage() {
 
   return (
     <div className="animate-fade-in">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-text-primary">Connections</h1>
-        <button
-          onClick={() => setShowModal(true)}
-          className="rounded-lg bg-wa-green px-4 py-2 text-sm font-semibold text-text-inverse transition-colors duration-150 hover:bg-wa-green-dark"
-        >
-          Nueva Conexión
-        </button>
-      </div>
+      {list.length > 0 && (
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold text-text-primary">Connections</h1>
+          <button onClick={() => setShowModal(true)}
+            className="rounded-xl bg-wa-green px-4 py-2.5 text-sm font-semibold text-text-inverse transition-all hover:bg-wa-green-dark hover:shadow-lg hover:shadow-wa-green/20 flex items-center gap-2">
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4"/></svg>
+            Nueva Conexión
+          </button>
+        </div>
+      )}
 
       {loading && <ConnectionListSkeleton />}
 
       {error && (
-        <div className="mt-6 rounded-lg border border-status-error-border bg-status-error-bg p-4 text-sm text-status-error-text">
+        <div className="mt-6 rounded-lg border border-red-500/20 bg-red-500/5 p-4 text-sm text-red-400">
           Error al cargar conexiones: {error}
         </div>
       )}
 
       {!loading && !error && list.length === 0 && !showModal && (
-        <div className="mt-16 flex flex-col items-center text-center">
-          <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-border-primary bg-bg-secondary">
-            <span className="text-3xl">📱</span>
+        <div className="flex items-center justify-center min-h-[70vh]">
+          <div className="flex flex-col items-center text-center rounded-3xl border border-border-primary bg-bg-secondary p-12 max-w-md w-full">
+            <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-wa-green/10">
+              <svg className="h-10 w-10 text-wa-green" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+              </svg>
+            </div>
+            <h2 className="mt-6 text-xl font-bold text-text-primary">Sin conexiones</h2>
+            <p className="mt-2 text-sm text-text-secondary leading-relaxed">Creá tu primera conexión de WhatsApp y empezá a recibir mensajes al instante.</p>
+            <button onClick={() => setShowModal(true)}
+              className="mt-8 w-full rounded-xl bg-wa-green px-6 py-3.5 text-sm font-semibold text-text-inverse transition-all hover:bg-wa-green-dark hover:shadow-lg hover:shadow-wa-green/20 flex items-center justify-center gap-2">
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4"/></svg>
+              Crear conexión
+            </button>
           </div>
-          <p className="mt-4 text-base font-medium text-text-primary">
-            Sin conexiones
-          </p>
-          <p className="mt-1 text-sm text-text-secondary">
-            Creá tu primera conexión de WhatsApp para comenzar.
-          </p>
-          <button
-            onClick={() => setShowModal(true)}
-            className="mt-6 rounded-lg bg-wa-green px-5 py-2.5 text-sm font-semibold text-text-inverse transition-colors duration-150 hover:bg-wa-green-dark"
-          >
-            Crear conexión
-          </button>
         </div>
       )}
 
@@ -275,72 +275,59 @@ export default function ConnectionsPage() {
 
       {/* Modal for new connection + QR */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={closeModal}>
-          <div
-            className="mx-4 w-full max-w-md rounded-2xl border border-border-secondary bg-bg-secondary p-8 shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="mb-6 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-text-primary">
-                {qr ? "Escaneá el QR" : newConnId ? "Creando conexión..." : "Nueva Conexión"}
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={closeModal}>
+          <div className="w-full max-w-md rounded-3xl border border-border-secondary bg-bg-secondary shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            {/* Header */}
+            <div className="flex items-center justify-between px-8 pt-8 pb-4">
+              <h2 className="text-xl font-bold text-text-primary">
+                {qr ? "Escaneá el QR" : newConnId ? "Configurando WhatsApp..." : "Nueva Conexión"}
               </h2>
-              <button onClick={closeModal} className="rounded-lg p-1.5 text-text-tertiary hover:text-text-primary transition-colors">
-                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
+              <button onClick={closeModal} className="rounded-xl p-2 text-text-tertiary hover:bg-bg-hover hover:text-text-primary transition-all">
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
               </button>
             </div>
 
+            {/* Body */}
+            <div className="px-8 pb-8">
             {!newConnId && (
-              <form onSubmit={handleCreate} className="space-y-4">
+              <form onSubmit={handleCreate} className="space-y-5">
                 <div>
-                  <label htmlFor="conn-name" className="mb-1.5 block text-sm font-medium text-text-secondary">
-                    Nombre <span className="font-normal text-text-tertiary">(opcional)</span>
-                  </label>
-                  <input
-                    id="conn-name"
-                    type="text"
-                    value={newName}
-                    onChange={(e) => setNewName(e.target.value)}
-                    placeholder="ej. Mi WhatsApp Business"
-                    disabled={creating}
-                    autoFocus
-                    className="block w-full rounded-lg border border-border-secondary bg-bg-elevated px-3.5 py-2.5 text-text-primary transition-colors placeholder:text-text-tertiary focus:border-wa-green focus:outline-none focus:ring-1 focus:ring-wa-green disabled:opacity-50"
-                  />
+                  <label htmlFor="conn-name" className="mb-2 block text-sm font-medium text-text-secondary">Nombre <span className="font-normal text-text-tertiary">(opcional)</span></label>
+                  <input id="conn-name" type="text" value={newName} onChange={(e) => setNewName(e.target.value)}
+                    placeholder="ej. Mi WhatsApp Business" disabled={creating} autoFocus
+                    className="block w-full rounded-xl border border-border-secondary bg-bg-elevated px-4 py-3 text-sm text-text-primary placeholder:text-text-tertiary focus:border-wa-green focus:outline-none focus:ring-2 focus:ring-wa-green/20 transition-all disabled:opacity-50"/>
                 </div>
                 {modalError && (
-                  <div className="rounded-lg border border-status-error-border bg-status-error-bg p-3 text-sm text-status-error-text">
-                    {modalError}
-                  </div>
+                  <div className="rounded-xl border border-red-500/20 bg-red-500/5 p-3 text-sm text-red-400">{modalError}</div>
                 )}
-                <button
-                  type="submit"
-                  disabled={creating}
-                  className="w-full rounded-lg bg-wa-green px-4 py-2.5 text-sm font-semibold text-text-inverse transition-colors hover:bg-wa-green-dark disabled:opacity-50"
-                >
-                  {creating ? "Creando..." : "Crear Conexión"}
+                <button type="submit" disabled={creating}
+                  className="w-full rounded-xl bg-wa-green px-4 py-3 text-sm font-semibold text-text-inverse transition-all hover:bg-wa-green-dark hover:shadow-lg hover:shadow-wa-green/20 disabled:opacity-50 flex items-center justify-center gap-2">
+                  {creating ? (
+                    <><svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>Creando...</>
+                  ) : "Crear Conexión"}
                 </button>
               </form>
             )}
 
             {newConnId && !qr && (
-              <div className="flex flex-col items-center py-8">
-                <div className="h-12 w-12 animate-spin rounded-full border-4 border-wa-green border-t-transparent" />
-                <p className="mt-4 text-sm text-text-secondary">
-                  {qrLoading ? "Cargando QR..." : "Esperando worker..."}
-                </p>
+              <div className="flex flex-col items-center py-10">
+                <svg className="h-10 w-10 animate-spin text-wa-green" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                </svg>
+                <p className="mt-4 text-sm font-medium text-text-secondary">{qrLoading ? "Generando código QR..." : "Iniciando worker..."}</p>
+                <p className="mt-1 text-xs text-text-tertiary">Esto puede tomar unos segundos</p>
               </div>
             )}
 
             {qr && (
               <div className="flex flex-col items-center">
-                <img
-                  src={`data:${qr.mimetype};base64,${qr.value}`}
-                  alt="WhatsApp QR Code"
-                  className="h-64 w-64 rounded-lg"
-                />
-                <p className="mt-3 text-sm text-text-secondary">
-                  Abrí WhatsApp en tu teléfono y escaneá este código
+                <div className="rounded-2xl border-2 border-wa-green/30 p-2">
+                  <img src={`data:${qr.mimetype};base64,${qr.value}`} alt="WhatsApp QR Code" className="h-56 w-56 rounded-xl"/>
+                </div>
+                <p className="mt-4 text-sm text-text-secondary flex items-center gap-2">
+                  <svg className="h-4 w-4 text-wa-green" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.383a14.406 14.406 0 01-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 10-7.517 0c.85.493 1.509 1.333 1.509 2.316V18"/></svg>
+                  Abrí WhatsApp y escaneá el código
                 </p>
               </div>
             )}
