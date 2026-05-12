@@ -9,7 +9,7 @@
         <string>/opt/homebrew/bin/cloudflared</string>
         <string>tunnel</string>
         <string>--config</string>
-        <string>/Users/govideo/APIWHATS/wahooks/cloudflared-config.yml</string>
+        <string>/Users/govideo/APIWHATS/Recurso-Musical-master/wago/cloudflared-config.yml</string>
         <string>run</string>
     </array>
     <key>RunAtLoad</key>

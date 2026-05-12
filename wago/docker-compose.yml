@@ -25,21 +25,18 @@ services:
     depends_on:
       - waha
       - redis
+    env_file:
+      - apps/api/.env
     environment:
       NODE_ENV: production
       PORT: 3001
-      TURSO_DATABASE_URL: ${TURSO_DATABASE_URL}
-      TURSO_AUTH_TOKEN: ${TURSO_AUTH_TOKEN}
-      SUPABASE_URL: ${SUPABASE_URL}
       ORCHESTRATOR: local
       WAHA_HOST: waha
-      WAHA_API_KEY: ${WAHA_API_KEY:-devkey}
-      WAHA_MAX_SESSIONS: 1
       WAHA_PORT: 3000
+      WAHA_MAX_SESSIONS: 1
       REDIS_URL: redis://redis:6379
-      API_URL: ${API_URL:-http://localhost:3001}
-      FRONTEND_URL: ${FRONTEND_URL:-https://wago.com}
-      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
+      API_URL: https://api.recursomusical.com.mx
+      FRONTEND_URL: https://whatsapp.recursomusical.com.mx
     ports:
       - "3001:3001"
     networks:
