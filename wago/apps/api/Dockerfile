@@ -21,7 +21,10 @@ RUN pnpm install --frozen-lockfile
 # =============================================================================
 FROM base AS builder
 WORKDIR /app
-COPY --from=deps /app ./
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/apps/api/node_modules ./apps/api/node_modules
+COPY --from=deps /app/packages ./packages
+# Copy source code (skipping node_modules via .dockerignore)
 COPY . .
 RUN pnpm turbo run build --filter=@wago/api
 

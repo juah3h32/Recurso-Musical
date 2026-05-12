@@ -15,11 +15,21 @@ async function bootstrap() {
     origin: [
       frontendUrl,
       "http://localhost:3000",
+      "https://whatsapp.recursomusical.com.mx",
+      "https://recursomusical.com.mx",
       /\.vercel\.app$/,
     ],
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "X-Requested-With",
+      "Accept",
+      "Origin",
+    ],
     credentials: true,
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
   });
   app.setGlobalPrefix("api");
   app.useWebSocketAdapter(new WsAdapter(app));
