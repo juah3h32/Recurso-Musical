@@ -4,6 +4,6 @@ credentials-file: /Users/govideo/.cloudflared/3e24eb21-0567-487b-8880-8fa55f6da3
 ingress:
   - hostname: api.recursomusical.com.mx
     service: http://localhost:3001
-  - hostname: whatsapp.recursomusical.com.mx
+  - hostname: waha.recursomusical.com.mx
     service: http://localhost:3000
   - service: http_status:404
