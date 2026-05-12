@@ -8,6 +8,7 @@ import path from 'path';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
+  base: '/whatsapp',
   integrations: [react()],
   vite: {
     plugins: [tailwindcss()],
