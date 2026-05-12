@@ -171,59 +171,13 @@ export class ConnectionsController {
       const webhookUrl = `${apiUrl}/api/events/waha?workerId=${worker.id}&secret=${worker.ingressSecret}`;
       const wahaName = this.wahaService.resolveSessionName(sessionName);
 
-      // Clean up any existing session on this worker before creating a new one.
-      // In WAHA Core mode (1 session/pod), there can only be one session named "default".
-      try {
-        await this.wahaService.getSession(
-          worker.internalIp,
-          worker.apiKey,
-          wahaName,
-        );
-        // Session exists — delete it so we can create fresh with full config
-        this.logger.log(
-          `Existing WAHA session "${wahaName}" found, cleaning up before re-create`,
-        );
-        try {
-          await this.wahaService.stopSession(
-            worker.internalIp,
-            worker.apiKey,
-            wahaName,
-          );
-        } catch {
-          // Ignore
-        }
-        try {
-          await this.wahaService.logoutSession(
-            worker.internalIp,
-            worker.apiKey,
-            wahaName,
-          );
-        } catch {
-          // Ignore
-        }
-        try {
-          await this.wahaService.deleteSession(
-            worker.internalIp,
-            worker.apiKey,
-            wahaName,
-          );
-        } catch {
-          // Ignore
-        }
-      } catch {
-        // Session doesn't exist yet — fine
-      }
-
-      await this.wahaService.createSession(
+      // In WAHA Core, the "default" session always exists and cannot be deleted.
+      // Use resetSession which does stop → create(start:true) with fresh config.
+      await this.wahaService.resetSession(
         worker.internalIp,
         worker.apiKey,
         wahaName,
         webhookUrl,
-      );
-      await this.wahaService.startSession(
-        worker.internalIp,
-        worker.apiKey,
-        wahaName,
       );
 
       const [updated] = await this.db
