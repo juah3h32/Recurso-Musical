@@ -1,5 +1,10 @@
 {
+  "framework": null,
   "outputDirectory": "public",
+  "builds": [
+    { "src": "api/api.ts", "use": "@vercel/node" },
+    { "src": "public/**", "use": "@vercel/static" }
+  ],
   "rewrites": [
     { "source": "/rm-api/api.php", "destination": "/api/api" },
     { "source": "/rm-api/api.php(.*)", "destination": "/api/api" }
