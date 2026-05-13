@@ -38,6 +38,8 @@ export const createHandler = async (expressInstance: express.Express) => {
       "Origin",
     ],
     credentials: true,
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
   });
   
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
