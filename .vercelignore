@@ -1,0 +1,9 @@
+**/node_modules
+apps/web
+.turbo
+terraform
+cli
+coverage
+**/*.tsbuildinfo
+**/__tests__
+apps/api/test
