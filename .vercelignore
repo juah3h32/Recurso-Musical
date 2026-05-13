@@ -1,6 +1,6 @@
 **/node_modules
 apps/web
-apps/api/vercel.json
+apps/api/vercel.json.disabled
 .turbo
 terraform
 cli
@@ -8,3 +8,4 @@ coverage
 **/*.tsbuildinfo
 **/__tests__
 apps/api/test
+turbo.json
