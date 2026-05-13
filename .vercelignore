@@ -1,6 +1,6 @@
 **/node_modules
 apps/web
-apps/api/vercel.json.disabled
+
 .turbo
 terraform
 cli
