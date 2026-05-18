@@ -4,7 +4,11 @@ import { api } from '../api/api';
 export async function getTutorialesByCategoria(categoria) {
   const data = await api.getTutoriales(categoria);
   if (!Array.isArray(data)) {
-    throw new Error(data?.error || data?.message || 'Respuesta inesperada del servidor');
+    const errMsg =
+      typeof data?.error === 'string'   ? data.error :
+      typeof data?.message === 'string' ? data.message :
+      `Respuesta inesperada: ${JSON.stringify(data).slice(0, 300)}`;
+    throw new Error(errMsg);
   }
   return data;
 }

@@ -2,7 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const TOKEN_KEY = 'rm_app_token';
-const BASE = 'https://recursomusical.com.mx/rm-api/api.php';
+const BASE = 'https://api.recursomusical.com.mx/rm-api/api.php';
 const APP_SECRET = 'rm_app_2024_public';
 
 interface AuthCtx {
@@ -21,8 +21,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         let t = await AsyncStorage.getItem(TOKEN_KEY);
         if (!t) {
-          const res = await fetch(`${BASE}?action=appToken&secret=${APP_SECRET}`);
-          const data = await res.json();
+          const res = await fetch(`${BASE}?action=appToken&secret=${APP_SECRET}`, {
+            headers: {
+              'Accept': 'application/json',
+              'User-Agent': 'Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36 Chrome/120 Mobile Safari/537.36',
+            },
+          });
+          const text = await res.text();
+          let data: any;
+          try { data = JSON.parse(text); } catch { data = {}; }
           if (data.ok) {
             t = data.token;
             await AsyncStorage.setItem(TOKEN_KEY, t!);

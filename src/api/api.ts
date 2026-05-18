@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const BASE = process.env.EXPO_PUBLIC_API_URL ?? 'https://recursomusical.com.mx/rm-api/api.php';
+const BASE = process.env.EXPO_PUBLIC_API_URL ?? 'https://api.recursomusical.com.mx/rm-api/api.php';
 const APP_SECRET = 'rm_app_2024_public';
 const TOKEN_KEY = 'rm_app_token';
 
@@ -125,10 +125,10 @@ export const api = {
     }),
 
   getMultitracks: (): Promise<Multitrack[]> =>
-    fetch(`${BASE}?action=getMultitracks`).then((r) => r.json()),
+    apiFetch(`?action=getMultitracks`),
 
   getMultitrack: (id: number): Promise<MultitrackDetalle> =>
-    fetch(`${BASE}?action=getMultitrack&id=${id}`).then((r) => r.json()),
+    apiFetch(`?action=getMultitrack&id=${id}`),
 
   savePushToken: (token: string, platform: string) =>
     fetch(`${BASE}?action=savePushToken&secret=${APP_SECRET}`, {

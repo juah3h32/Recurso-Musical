@@ -1067,7 +1067,7 @@ export default function TutorialsScreen() {
     try{
       const data=q.length>1?await buscarTutoriales(q):await getTutorialesByCategoria(cat);
       setItems(Array.isArray(data)?data:[]);
-    }catch(e){console.error('[TutorialsScreen]',e.message);setError(e.message);setItems([]);}
+    }catch(e){console.error('[TutorialsScreen]',e?.message,e);setError(e?.message||String(e)||'Error desconocido');setItems([]);}
     finally{setLoading(false);setRef(false);}
   },[cat,q]);
 
